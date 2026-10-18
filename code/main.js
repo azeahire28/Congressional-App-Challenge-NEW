@@ -1,38 +1,36 @@
-// Wait for the entire HTML document to be fully parsed and loaded before running any script logic
 document.addEventListener("DOMContentLoaded", function () {
 
-  // Query and store references to the primary application container views so we can switch between screens dynamically
-  const authContainer = document.getElementById("authContainer");
-  const centeredLoginContainer = document.getElementById("centeredLoginContainer");
+  // Grab references to all main container views for dynamic screen switching
+  const signupView = document.getElementById("signupView");
+  const loginView = document.getElementById("loginView");
   const symptomsView = document.getElementById("symptomsView");
   const dashboardView = document.getElementById("dashboardView");
 
-  // Query and store references to the navigation buttons and action triggers used throughout the application flows
-  const switchToLogin = document.getElementById("switchToLogin");
-  const switchToSignup = document.getElementById("switchToSignup");
-  const createAccountBtn = document.getElementById("createAccountBtn");
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
+  // Grab navigation triggers and buttons across authentication flows
+  const showLoginLink = document.getElementById("showLoginLink");
+  const showSignupLink = document.getElementById("showSignupLink");
+  const createAccountButton = document.getElementById("createAccountButton");
+  const loginButton = document.getElementById("loginButton");
+  const logoutButton = document.getElementById("logoutButton");
 
-  // Query and store references to the text and password input fields found inside the authentication forms
-  const signupUsername = document.getElementById("signupUsername");
-  const signupPassword = document.getElementById("signupPassword");
-  const loginUsername = document.getElementById("loginUsername");
-  const loginPassword = document.getElementById("loginPassword");
+  // Grab input fields for signup and login forms
+  const signupUsernameInput = document.getElementById("signupUsernameInput");
+  const signupPasswordInput = document.getElementById("signupPasswordInput");
+  const loginUsernameInput = document.getElementById("loginUsernameInput");
+  const loginPasswordInput = document.getElementById("loginPasswordInput");
 
-  // Query and store references to the symptom selection cards, instruction text, and tracking collection
+  // Grab symptom cards, continue button, and tracking collection set
   const symptomCards = document.querySelectorAll(".symptom-card");
-  const symptomCountText = document.getElementById("symptomCountText");
-  const symptomsContinueBtn = document.getElementById("symptomsContinueBtn");
+  const startWellnessButton = document.getElementById("startWellnessButton");
   const selectedSymptoms = new Set();
 
-  // Query and store references to the custom popup modal elements used for displaying validation errors and alerts
+  // Grab custom modal elements for validation messages and alerts
   const customModal = document.getElementById("customModal");
   const modalTitle = document.getElementById("modalTitle");
   const modalMessage = document.getElementById("modalMessage");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
 
-  // Query and store references to the focus timer readout display, phase description text, and control buttons
+  // Grab focus timer display elements, status text, and control buttons
   const timerDisplay = document.getElementById("timerDisplay");
   const timerPhaseText = document.getElementById("timerPhaseText");
   const startTimerBtn = document.getElementById("startTimerBtn");
@@ -40,7 +38,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetTimerBtn = document.getElementById("resetTimerBtn");
   const timerModeBtns = document.querySelectorAll(".timer-mode-btn");
 
-  // Initialize the numerical variables that control the countdown duration and operational state of the focus timer
+  // Grab individual stretch buttons on the dashboard settings panel
+  const stretchActionBtns = document.querySelectorAll(".stretch-action-btn");
+
+  // Initialize numerical timer state variables
   let workDurationMinutes = 25;
   let breakDurationMinutes = 5;
   let timeRemainingSeconds = workDurationMinutes * 60;
@@ -48,98 +49,91 @@ document.addEventListener("DOMContentLoaded", function () {
   let isTimerRunning = false;
   let isWorkPhase = true;
 
-  // Define a reusable helper function that populates the custom modal with a title and message before making it visible on screen
+  // Helper function to populate and show the custom alert modal
   function showAlertModal(title, message) {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
     customModal.classList.remove("hidden");
   }
 
-  // Attach an event listener to hide the custom modal popup container when the close confirmation button is clicked
+  // Dismiss the custom modal when the confirmation button is clicked
   modalCloseBtn.addEventListener("click", function () {
     customModal.classList.add("hidden");
   });
 
-  // Attach an event listener to transition the user interface from the split sign-up screen to the centered login view
-  switchToLogin.addEventListener("click", function (event) {
+  // Switch from signup view to login view and clear input values
+  showLoginLink.addEventListener("click", function (event) {
     event.preventDefault();
-    authContainer.classList.add("hidden");
-    centeredLoginContainer.classList.remove("hidden");
+    signupUsernameInput.value = "";
+    signupPasswordInput.value = "";
+    signupView.classList.add("hidden");
+    loginView.classList.remove("hidden");
   });
 
-  // Attach an event listener to transition the user interface back from the centered login view to the sign-up screen
-  switchToSignup.addEventListener("click", function (event) {
+  // Switch from login view back to signup view and clear input values
+  showSignupLink.addEventListener("click", function (event) {
     event.preventDefault();
-    centeredLoginContainer.classList.add("hidden");
-    authContainer.classList.remove("hidden");
+    loginUsernameInput.value = "";
+    loginPasswordInput.value = "";
+    loginView.classList.add("hidden");
+    signupView.classList.remove("hidden");
   });
 
-  // Attach an event listener to handle account creation, checking for empty inputs, duplicate usernames, and password length
-  createAccountBtn.addEventListener("click", function () {
-    const username = signupUsername.value.trim();
-    const password = signupPassword.value.trim();
+  // Handle account creation logic with validation for blanks, short passwords, and duplicates
+  createAccountButton.addEventListener("click", function () {
+    const username = signupUsernameInput.value.trim();
+    const password = signupPasswordInput.value.trim();
 
-    // Check if the user left either the username or password fields empty, and display an error modal if true
     if (username === "" || password === "") {
       showAlertModal("Missing Information", "Please enter both a username and a password.");
       return;
     }
 
-    // Check if the entered password is shorter than six characters, and display a warning modal if true
     if (password.length < 6) {
       showAlertModal("Password Too Short", "Please choose a password that is at least 6 characters long.");
       return;
     }
 
-    // Check if a record with this specific username already exists inside browser storage to prevent account overwriting
     const userKey = "ergoUser_" + username;
     if (localStorage.getItem(userKey)) {
       showAlertModal("Username Exists", "This username already exists. Please choose another one or log in.");
       return;
     }
 
-    // Save the new user credentials and active username session state into local storage
     localStorage.setItem(userKey, password);
     localStorage.setItem("currentActiveUser", username);
 
-    // Clear any leftover symptom selections from prior sessions so the new account starts with a fresh setup screen
     selectedSymptoms.clear();
     symptomCards.forEach(function (c) { c.classList.remove("selected"); });
-    symptomsContinueBtn.setAttribute("disabled", "true");
-    symptomsContinueBtn.classList.add("disabled-btn");
-    symptomCountText.textContent = "Please select at least 1 symptom to continue.";
+    startWellnessButton.setAttribute("disabled", "true");
+    startWellnessButton.classList.add("disabled-btn");
 
-    // Hide the sign-up view and reveal the personalized symptom setup screen
-    authContainer.classList.add("hidden");
+    signupView.classList.add("hidden");
     symptomsView.classList.remove("hidden");
   });
 
-  // Attach an event listener to validate login credentials and transition the user directly to their main dashboard view
-  loginBtn.addEventListener("click", function () {
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value.trim();
+  // Validate login credentials and open the user's dashboard
+  loginButton.addEventListener("click", function () {
+    const username = loginUsernameInput.value.trim();
+    const password = loginPasswordInput.value.trim();
 
-    // Check if the login input fields are empty and display a warning message if they are
     if (username === "" || password === "") {
       showAlertModal("Login Error", "Please enter your username and password.");
       return;
     }
 
-    // Store the active logged-in username so the dashboard can load the correct personalized preferences
     localStorage.setItem("currentActiveUser", username);
 
-    // Hide the login screen container and display the main dashboard view, then load user preferences
-    centeredLoginContainer.classList.add("hidden");
+    loginView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     loadUserStretchPreferences();
   });
 
-  // Loop through every selectable symptom card to attach a click listener that toggles its active selected state
+  // Loop through symptom cards to toggle selection state and enable or disable continue button
   symptomCards.forEach(function (card) {
     card.addEventListener("click", function () {
       const symptomKey = card.getAttribute("data-symptom");
 
-      // Toggle the visual selection class on the card and add or remove its identifier from our tracking collection set
       if (card.classList.contains("selected")) {
         card.classList.remove("selected");
         selectedSymptoms.delete(symptomKey);
@@ -148,49 +142,42 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedSymptoms.add(symptomKey);
       }
 
-      // Update the instruction counter text and enable or disable the continue button depending on selection count
       if (selectedSymptoms.size > 0) {
-        symptomsContinueBtn.removeAttribute("disabled");
-        symptomsContinueBtn.classList.remove("disabled-btn");
-        symptomCountText.textContent = `${selectedSymptoms.size} symptom area(s) selected.`;
+        startWellnessButton.removeAttribute("disabled");
+        startWellnessButton.classList.remove("disabled-btn");
       } else {
-        symptomsContinueBtn.setAttribute("disabled", "true");
-        symptomsContinueBtn.classList.add("disabled-btn");
-        symptomCountText.textContent = "Please select at least 1 symptom to continue.";
+        startWellnessButton.setAttribute("disabled", "true");
+        startWellnessButton.classList.add("disabled-btn");
       }
     });
   });
 
-  // Attach an event listener to save the user's selected symptoms uniquely under their account and proceed to the dashboard view
-  symptomsContinueBtn.addEventListener("click", function () {
+  // Save selected symptoms uniquely under the active username and open dashboard
+  startWellnessButton.addEventListener("click", function () {
     if (selectedSymptoms.size > 0) {
       const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
-      // Save the selected symptoms array into local storage using a unique key tied directly to the active username
       localStorage.setItem("userSymptoms_" + activeUser, JSON.stringify(Array.from(selectedSymptoms)));
       
-      // Hide the symptom selection screen and reveal the dashboard container view
       symptomsView.classList.add("hidden");
       dashboardView.classList.remove("hidden");
       loadUserStretchPreferences();
     }
   });
 
-  // Define a function that retrieves the active user's saved symptoms and automatically synchronizes the dashboard toggle switches
+  // Retrieve active user's saved symptoms and synchronize dashboard toggle switches
   function loadUserStretchPreferences() {
     const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
     const savedSymptoms = JSON.parse(localStorage.getItem("userSymptoms_" + activeUser)) || [];
 
-    // Map each symptom data identifier string to its corresponding physical checkbox input element on the dashboard settings panel
     const preferenceMap = {
-      "eyes": document.getElementById("stretchEyeToggle"),
-      "neck": document.getElementById("stretchNeckToggle"),
-      "back": document.getElementById("stretchBackToggle"),
-      "wrist": document.getElementById("stretchWristToggle"),
-      "hip": document.getElementById("stretchHipToggle"),
-      "headache": document.getElementById("stretchHeadacheToggle")
+      "Eye Strain": document.getElementById("stretchEyeToggle"),
+      "Neck Tension": document.getElementById("stretchNeckToggle"),
+      "Back & Posture": document.getElementById("stretchBackToggle"),
+      "Wrist & Hand Tension": document.getElementById("stretchWristToggle"),
+      "Hip tightness": document.getElementById("stretchHipToggle"),
+      "Tension Headaches": document.getElementById("stretchHeadacheToggle")
     };
 
-    // Iterate through the preference map keys and set each toggle's checked property to true if it exists in the saved array
     Object.keys(preferenceMap).forEach(key => {
       const toggle = preferenceMap[key];
       if (toggle) {
@@ -199,18 +186,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Attach an event listener to the dashboard logout button to clear form inputs and return the interface to the login view
-  logoutBtn.addEventListener("click", function () {
-    signupUsername.value = "";
-    signupPassword.value = "";
-    loginUsername.value = "";
-    loginPassword.value = "";
+  // Clear authentication input boxes and return to login screen on logout
+  logoutButton.addEventListener("click", function () {
+    signupUsernameInput.value = "";
+    signupPasswordInput.value = "";
+    loginUsernameInput.value = "";
+    loginPasswordInput.value = "";
 
     dashboardView.classList.add("hidden");
-    centeredLoginContainer.classList.remove("hidden");
+    loginView.classList.remove("hidden");
   });
 
-  // Define a function to calculate remaining minutes and seconds, formatting them into a readable mm:ss string for the timer display
+  // Attach click listeners to individual stretch buttons to trigger stretching session modal popup
+  stretchActionBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const stretchType = btn.getAttribute("data-stretch");
+      showAlertModal("Stretching Session", `Starting your guided stretching session for ${stretchType}.`);
+    });
+  });
+
+  // Calculate remaining minutes and seconds into a formatted digital mm:ss countdown clock string
   function updateTimerDisplay() {
     const minutes = Math.floor(timeRemainingSeconds / 60);
     const seconds = timeRemainingSeconds % 60;
@@ -219,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
     timerDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
   }
 
-  // Define a function that starts the countdown interval loop, decrementing remaining seconds every second until zero
+  // Start the countdown timer interval loop, decrementing seconds every second
   function startTimer() {
     if (isTimerRunning) return;
     
@@ -233,7 +228,6 @@ document.addEventListener("DOMContentLoaded", function () {
         clearInterval(timerInterval);
         isTimerRunning = false;
         
-        // Toggle between the work focus phase and the stretch break phase when the countdown timer reaches zero
         if (isWorkPhase) {
           isWorkPhase = false;
           timeRemainingSeconds = breakDurationMinutes * 60;
@@ -251,13 +245,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
   }
 
-  // Define a function that clears the active countdown interval and halts timer execution
+  // Clear the active countdown interval loop to pause the timer
   function pauseTimer() {
     clearInterval(timerInterval);
     isTimerRunning = false;
   }
 
-  // Define a function that pauses the timer, resets the active phase back to work mode, and restores initial duration values
+  // Pause the timer, reset active phase to work mode, and restore initial duration values
   function resetTimer() {
     pauseTimer();
     isWorkPhase = true;
@@ -266,12 +260,12 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTimerDisplay();
   }
 
-  // Attach click event listeners to the timer control buttons for starting, pausing, and resetting the countdown
+  // Hook up timer control buttons
   startTimerBtn.addEventListener("click", startTimer);
   pauseTimerBtn.addEventListener("click", pauseTimer);
   resetTimerBtn.addEventListener("click", resetTimer);
 
-  // Loop through all timer mode preset buttons to add event listeners that update work and break durations upon selection
+  // Update work and break durations and reset clock when preset mode buttons are clicked
   timerModeBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       timerModeBtns.forEach(function (b) { b.classList.remove("active"); });
@@ -283,6 +277,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Call the timer display formatting function immediately on script load to render the default initial state on screen
+  // Render starting time immediately on script load
   updateTimerDisplay();
 });
