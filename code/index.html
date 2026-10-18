@@ -1,0 +1,141 @@
+<!-- keeping structure of original design -->
+<!-- main app window where the account screen is in split view -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ErgoGrow - Your Desk Buddy</title>
+  <!-- style sheet for the app -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- holding the split screen view for signup -->
+  <div id="signupView" class="app-container">
+
+    <!-- left side holding the logo and signup form -->
+    <section class="panel left-panel">
+      
+      <!-- wrapper keeping the header and card box neatly aligned -->
+      <div class="left-content-wrapper">
+
+        <!-- logo icon and brand title -->
+        <div class="logo-container">
+          <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo Icon" class="logo-icon" />
+          <h1 class="brand-title">
+            <span class="ergo-text">Ergo</span><span class="grow-text">Grow</span>
+          </h1>
+        </div>
+        <p class="brand-subtitle">Your very own desk buddy</p>
+
+        <!-- card box for making a new account -->
+        <div id="signupCard" class="card-container">
+          <h2>Make an account</h2>
+          
+          <div class="input-group">
+            <input type="text" id="usernameInput" placeholder="Username" />
+          </div>
+          <div class="input-group">
+            <input type="password" id="passwordInput" placeholder="Password" />
+          </div>
+
+          <button id="createAccountButton" class="primary-btn">Create account</button>
+          
+          <p class="auth-switch">Have an account? <a href="#" id="showLoginLink">Log in</a></p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- right side showing the wellness tree artwork -->
+    <section class="panel right-panel">
+      <div class="hero-illustration-wrapper">
+        <img src="./assets/ErgoGrow Tree Reaching Illustration.png" alt="ErgoGrow Wellness Tree" class="hero-tree-img" />
+      </div>
+    </section>
+
+  </div>
+
+  <!-- full screen layout for login matching original design -->
+  <div id="loginView" class="full-page-container hidden">
+
+    <div class="centered-login-wrapper">
+
+      <!-- centered header above the login box -->
+      <div class="logo-container centered-logo">
+        <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo Icon" class="logo-icon-large" />
+        <h1 class="brand-title-large">
+          <span class="ergo-text">Ergo</span><span class="grow-text">Grow</span>
+        </h1>
+      </div>
+
+      <!-- centered login box card -->
+      <div class="card-container login-card">
+        <h2>Log in</h2>
+        
+        <div class="input-group">
+          <input type="text" id="loginUsernameInput" placeholder="Username" />
+        </div>
+        <div class="input-group">
+          <input type="password" id="loginPasswordInput" placeholder="Password" />
+        </div>
+
+        <button id="loginButton" class="primary-btn">Log in</button>
+        
+        <p class="auth-switch">Don't have an account? <a href="#" id="showSignupLink">Sign up</a></p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- full screen layout for symptoms selection screen -->
+  <div id="symptomsView" class="full-page-container hidden">
+    <div class="symptoms-wrapper">
+      
+      <div class="symptoms-header">
+        <h2>Tell us what you experience.</h2>
+        <p>We'll send you gentle, timed reminders to help your body feel its best.</p>
+      </div>
+
+      <!-- grid of selectable symptom cards -->
+      <div class="symptoms-grid">
+        <div class="symptom-card" data-symptom="Eye Strain">
+          <span>Eye Strain</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        <div class="symptom-card" data-symptom="Neck Tension">
+          <span>Neck Tension</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        <div class="symptom-card" data-symptom="Back & Posture">
+          <span>Back & Posture</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        <div class="symptom-card" data-symptom="Wrist & Hand Tension">
+          <span>Wrist & Hand Tension</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        <div class="symptom-card" data-symptom="Hip tightness">
+          <span>Hip tightness</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        <div class="symptom-card" data-symptom="Tension Headaches">
+          <span>Tension Headaches</span>
+          <div class="checkbox-circle"></div>
+        </div>
+      </div>
+
+      <div class="symptoms-footer">
+        <p class="symptoms-instruction">Select at least one to continue</p>
+        <button id="startWellnessButton" class="primary-btn disabled-btn" disabled>Start My Wellness Plan</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- loading the main script -->
+  <script src="main.js"></script>
+</body>
+</html>

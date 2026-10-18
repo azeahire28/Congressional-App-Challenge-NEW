@@ -1,0 +1,303 @@
+/* setting up theme variables */
+:root {
+  --bg-dark: #040403;
+  --bg-card: #FFFFFF;
+  --bg-container: #E9ECEF;
+  
+  --panel-left-bg: #C3E8BD;  
+  --panel-right-bg: #8EB897; 
+
+  --green-primary: #5B7553; 
+  --green-accent: #8EB897;  
+}
+
+/* base body setup */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: #333333;
+}
+
+/* layout wrapper for split screen stuff */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* full screen layout for login and symptoms views */
+.full-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--panel-left-bg);
+}
+
+/* utility class to hide views */
+.hidden {
+  display: none !important;
+}
+
+/* wrapper for the centered login card */
+.centered-login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* wrapper for the symptoms selection screen */
+.symptoms-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 650px;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.symptoms-header {
+  margin-bottom: 25px;
+}
+
+.symptoms-header h2 {
+  font-size: 1.8rem;
+  color: var(--green-primary);
+  margin: 0 0 8px 0;
+}
+
+.symptoms-header p {
+  color: #4a5e44;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* grid layout for symptom cards matching reference */
+.symptoms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* individual symptom option card styling */
+.symptom-card {
+  background-color: var(--bg-container);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.symptom-card:hover {
+  background-color: #dce1e5;
+}
+
+/* active selected state for symptom cards */
+.symptom-card.selected {
+  background-color: #d2e4cb;
+  border: 2px solid var(--green-primary);
+}
+
+.symptom-card span {
+  font-weight: 600;
+  color: #333333;
+}
+
+/* circular check indicator */
+.checkbox-circle {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  transition: background-color 0.2s ease;
+}
+
+.symptom-card.selected .checkbox-circle {
+  background-color: var(--green-primary);
+  border-color: var(--green-primary);
+}
+
+.symptoms-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.symptoms-instruction {
+  font-size: 0.9rem;
+  color: var(--green-primary);
+  margin: 0;
+}
+
+/* disabled button state before selecting a symptom */
+.disabled-btn {
+  background-color: #9cb097 !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+/* general panel styling */
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.left-panel {
+  background-color: var(--panel-left-bg);
+  align-items: flex-start;
+  padding-left: 60px;
+  padding-right: 60px;
+}
+
+.left-content-wrapper {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-panel {
+  background-color: var(--panel-right-bg);
+}
+
+/* logo placement */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.centered-logo {
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.brand-title {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.brand-title-large {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.ergo-text {
+  color: var(--green-primary);
+  font-weight: 700;
+}
+
+.grow-text {
+  color: var(--green-primary);
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  color: var(--green-primary);
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+/* card boxes */
+.card-container {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.card-container h2 {
+  margin-top: 0;
+  color: #222222;
+}
+
+/* input fields */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* buttons */
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--green-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.primary-btn:hover {
+  background-color: #485c42;
+}
+
+/* switch links */
+.auth-switch {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.auth-switch a {
+  color: var(--bg-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* image sizing */
+.logo-icon {
+  width: 38px;
+  height: auto;
+  vertical-align: middle;
+}
+
+.logo-icon-large {
+  width: 48px;
+  height: auto;
+  vertical-align: middle;
+}
+
+.hero-tree-img {
+  max-width: 85%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
