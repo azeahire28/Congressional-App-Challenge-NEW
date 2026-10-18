@@ -1,141 +1,302 @@
-<!-- keeping structure of original design -->
-<!-- main app window where the account screen is in split view -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <!-- set document encoding and responsive viewport -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- page title -->
   <title>ErgoGrow - Your Desk Buddy</title>
-  <!-- style sheet for the app -->
-  <link rel="stylesheet" href="styles.css">
+  
+  <!-- stylesheet link -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- holding the split screen view for signup -->
-  <div id="signupView" class="app-container">
-
-    <!-- left side holding the logo and signup form -->
-    <section class="panel left-panel">
-      
-      <!-- wrapper keeping the header and card box neatly aligned -->
+  <!-- sign up split screen container -->
+  <div id="authContainer" class="app-container">
+    
+    <!-- left side panel for the sign up form -->
+    <div class="panel left-panel">
       <div class="left-content-wrapper">
-
-        <!-- logo icon and brand title -->
+        
+        <!-- logo and branding header -->
         <div class="logo-container">
-          <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo Icon" class="logo-icon" />
-          <h1 class="brand-title">
-            <span class="ergo-text">Ergo</span><span class="grow-text">Grow</span>
-          </h1>
+          <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Icon" class="logo-icon" />
+          <h1 class="brand-title"><span class="ergo-text">Ergo</span><span class="grow-text">Grow</span></h1>
         </div>
         <p class="brand-subtitle">Your very own desk buddy</p>
 
-        <!-- card box for making a new account -->
+        <!-- sign up card box -->
         <div id="signupCard" class="card-container">
           <h2>Make an account</h2>
+          <form id="signupForm" onsubmit="return false;">
+            <div class="input-group">
+              <input type="text" id="signupUsername" placeholder="Username" autocomplete="off" required />
+            </div>
+            <div class="input-group">
+              <input type="password" id="signupPassword" placeholder="Password" autocomplete="off" required />
+            </div>
+            <button type="button" id="createAccountBtn" class="primary-btn">Create account</button>
+          </form>
           
-          <div class="input-group">
-            <input type="text" id="usernameInput" placeholder="Username" />
+          <!-- switch link to login screen -->
+          <div class="auth-switch">
+            <span>Have an account? <a href="#" id="switchToLogin">Log in</a></span>
           </div>
-          <div class="input-group">
-            <input type="password" id="passwordInput" placeholder="Password" />
-          </div>
-
-          <button id="createAccountButton" class="primary-btn">Create account</button>
-          
-          <p class="auth-switch">Have an account? <a href="#" id="showLoginLink">Log in</a></p>
         </div>
 
       </div>
+    </div>
 
-    </section>
+    <!-- right side panel color block -->
+    <div class="panel right-panel"></div>
 
-    <!-- right side showing the wellness tree artwork -->
-    <section class="panel right-panel">
-      <div class="hero-illustration-wrapper">
-        <img src="./assets/ErgoGrow Tree Reaching Illustration.png" alt="ErgoGrow Wellness Tree" class="hero-tree-img" />
-      </div>
-    </section>
-
+    <!-- tree illustration centered over the split -->
+    <div class="split-overlay-wrapper">
+      <img src="./assets/ErgoGrow Leaves Blowing Illustration.png" alt="ErgoGrow Tree" class="split-hero-img" />
+    </div>
   </div>
 
-  <!-- full screen layout for login matching original design -->
-  <div id="loginView" class="full-page-container hidden">
 
-    <div class="centered-login-wrapper">
-
-      <!-- centered header above the login box -->
+  <!-- centered login container -->
+  <div id="centeredLoginContainer" class="full-page-container hidden">
+    <div class="auth-wrapper">
+      
+      <!-- logo header for login -->
       <div class="logo-container centered-logo">
-        <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo Icon" class="logo-icon-large" />
-        <h1 class="brand-title-large">
-          <span class="ergo-text">Ergo</span><span class="grow-text">Grow</span>
-        </h1>
+        <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo" class="logo-icon-auth" />
+        <h1 class="brand-title"><span class="ergo-text">Ergo</span><span class="grow-text">Grow</span></h1>
       </div>
 
-      <!-- centered login box card -->
-      <div class="card-container login-card">
+      <!-- login form card -->
+      <div id="loginCard" class="card-container auth-card">
         <h2>Log in</h2>
+        <form id="loginForm" onsubmit="return false;">
+          <div class="input-group">
+            <input type="text" id="loginUsername" placeholder="Username" autocomplete="off" required />
+          </div>
+          <div class="input-group">
+            <input type="password" id="loginPassword" placeholder="Password" autocomplete="off" required />
+          </div>
+          <button type="button" id="loginBtn" class="primary-btn">Log in</button>
+        </form>
         
-        <div class="input-group">
-          <input type="text" id="loginUsernameInput" placeholder="Username" />
+        <!-- switch link back to signup screen -->
+        <div class="auth-switch">
+          <span>Don't have an account? <a href="#" id="switchToSignup">Sign up</a></span>
         </div>
-        <div class="input-group">
-          <input type="password" id="loginPasswordInput" placeholder="Password" />
-        </div>
-
-        <button id="loginButton" class="primary-btn">Log in</button>
-        
-        <p class="auth-switch">Don't have an account? <a href="#" id="showSignupLink">Sign up</a></p>
       </div>
 
     </div>
-
   </div>
 
-  <!-- full screen layout for symptoms selection screen -->
+
+  <!-- symptoms preference screen with matching naming convention -->
   <div id="symptomsView" class="full-page-container hidden">
     <div class="symptoms-wrapper">
       
+      <!-- header text for symptom setup flow -->
       <div class="symptoms-header">
-        <h2>Tell us what you experience.</h2>
-        <p>We'll send you gentle, timed reminders to help your body feel its best.</p>
+        <h2>What bothers you most?</h2>
+        <p>Select any areas where you experience discomfort during your workday.</p>
       </div>
 
-      <!-- grid of selectable symptom cards -->
+      <!-- grid of selectable symptom cards matching dashboard preferences -->
       <div class="symptoms-grid">
-        <div class="symptom-card" data-symptom="Eye Strain">
+        
+        <!-- eye strain symptom card -->
+        <div class="symptom-card" data-symptom="eyes">
           <span>Eye Strain</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="Neck Tension">
+        
+        <!-- neck tension symptom card -->
+        <div class="symptom-card" data-symptom="neck">
           <span>Neck Tension</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="Back & Posture">
+        
+        <!-- back & posture symptom card -->
+        <div class="symptom-card" data-symptom="back">
           <span>Back & Posture</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="Wrist & Hand Tension">
+        
+        <!-- wrist & hand tension symptom card -->
+        <div class="symptom-card" data-symptom="wrist">
           <span>Wrist & Hand Tension</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="Hip tightness">
-          <span>Hip tightness</span>
+        
+        <!-- hip tightness symptom card -->
+        <div class="symptom-card" data-symptom="hip">
+          <span>Hip Tightness</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="Tension Headaches">
+        
+        <!-- tension headaches symptom card -->
+        <div class="symptom-card" data-symptom="headache">
           <span>Tension Headaches</span>
           <div class="checkbox-circle"></div>
         </div>
+
       </div>
 
+      <!-- footer instructions and continue button -->
       <div class="symptoms-footer">
-        <p class="symptoms-instruction">Select at least one to continue</p>
-        <button id="startWellnessButton" class="primary-btn disabled-btn" disabled>Start My Wellness Plan</button>
+        <p id="symptomCountText" class="symptoms-instruction">Please select at least 1 symptom to continue.</p>
+        <button id="symptomsContinueBtn" class="primary-btn disabled-btn" disabled>Continue to Dashboard</button>
       </div>
 
     </div>
   </div>
 
-  <!-- loading the main script -->
+
+  <!-- main dashboard screen -->
+  <div id="dashboardView" class="full-page-container hidden">
+    <div class="dashboard-wrapper">
+      
+      <!-- dashboard top header with logo and logout button -->
+      <div class="dashboard-header">
+        <div class="logo-container">
+          <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo" class="logo-icon-large" />
+          <h1 class="brand-title-large"><span class="ergo-text">Ergo</span><span class="grow-text">Grow</span></h1>
+        </div>
+        <button id="logoutBtn" class="outline-btn logout-btn">Log Out</button>
+      </div>
+
+      <!-- two column layout for main dashboard content -->
+      <div class="dashboard-grid">
+        
+        <!-- focus timer section card -->
+        <div class="card-container timer-section">
+          <h2>Focus Timer</h2>
+          
+          <!-- timer mode selector buttons -->
+          <div class="timer-mode-selector">
+            <button class="timer-mode-btn active" data-work="25" data-break="5">Pomodoro (25 / 5)</button>
+            <button class="timer-mode-btn" data-work="90" data-break="20">90-Min Cycle</button>
+            <button class="timer-mode-btn" data-work="52" data-break="17">52 / 17 Rule</button>
+            <button class="timer-mode-btn" data-work="60" data-break="15">Flowtime</button>
+          </div>
+
+          <!-- big timer countdown readout display -->
+          <div class="timer-display-box">
+            <h1 id="timerDisplay">25:00</h1>
+            <p id="timerPhaseText" class="timer-phase-text">Focus Phase</p>
+          </div>
+
+          <!-- start, pause, and reset control buttons -->
+          <div class="timer-controls">
+            <button id="startTimerBtn" class="primary-btn timer-btn">Start</button>
+            <button id="pauseTimerBtn" class="secondary-btn timer-btn">Pause</button>
+            <button id="resetTimerBtn" class="outline-btn timer-btn">Reset</button>
+          </div>
+        </div>
+
+        <!-- settings and stretch preferences card -->
+        <div class="card-container settings-section">
+          <h2>Dashboard Settings</h2>
+
+          <!-- master focus mode toggle row -->
+          <div class="toggle-row focus-mode-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Focus Mode</span>
+              <span class="toggle-subtitle">Turn off all break reminders and alerts completely</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="masterFocusToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- manual offline work mode toggle row -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Manual / Offline Work Mode</span>
+              <span class="toggle-subtitle">Pause automatic alerts during offline desk work</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="manualWorkToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- stretch preferences toggles list header -->
+          <h3 class="section-subtitle">Stretch Preferences</h3>
+
+          <!-- eye strain toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Eye Strain</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchEyeToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- neck tension toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Neck Tension</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchNeckToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- back & posture toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Back & Posture</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchBackToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- wrist & hand tension toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Wrist & Hand Tension</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchWristToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- hip tightness toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Hip Tightness</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchHipToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- tension headaches toggle row -->
+          <div class="toggle-row">
+            <span class="toggle-title">Tension Headaches</span>
+            <label class="switch">
+              <input type="checkbox" id="stretchHeadacheToggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- custom validation modal popup overlay -->
+  <div id="customModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="modalTitle">Notice</h3>
+      <p id="modalMessage">Please check your entries.</p>
+      <button id="modalCloseBtn" class="primary-btn">Got it</button>
+    </div>
+  </div>
+
+  <!-- javascript main file script tag -->
   <script src="main.js"></script>
 </body>
 </html>

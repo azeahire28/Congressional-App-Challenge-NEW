@@ -1,17 +1,17 @@
-/* setting up theme variables */
+/* root color variables */
 :root {
   --bg-dark: #040403;
   --bg-card: #FFFFFF;
   --bg-container: #E9ECEF;
   
-  --panel-left-bg: #C3E8BD;  
-  --panel-right-bg: #8EB897; 
+  --panel-left-bg: #8EB897;  
+  --panel-right-bg: #C3E8BD; 
 
   --green-primary: #5B7553; 
   --green-accent: #8EB897;  
 }
 
-/* base body setup */
+/* body resets and base styling */
 body {
   margin: 0;
   padding: 0;
@@ -20,38 +20,252 @@ body {
   color: #333333;
 }
 
-/* layout wrapper for split screen stuff */
+/* app container for split screen view */
 .app-container {
   display: flex;
   height: 100vh;
   width: 100vw;
+  position: relative;
+  overflow: hidden;
 }
 
-/* full screen layout for login and symptoms views */
+/* container for single centered screens */
 .full-page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-color: var(--panel-left-bg);
+  background-color: var(--panel-right-bg);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 20px;
 }
 
-/* utility class to hide views */
+/* utility class for hidden elements */
 .hidden {
   display: none !important;
 }
 
-/* wrapper for the centered login card */
-.centered-login-wrapper {
+/* split panel base */
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.left-panel {
+  background-color: var(--panel-left-bg);
+  align-items: flex-start;
+  padding-left: 60px;
+  padding-right: 60px;
+  z-index: 1;
+}
+
+.right-panel {
+  background-color: var(--panel-right-bg);
+  z-index: 1;
+}
+
+/* hero illustration positioning */
+.split-overlay-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+
+.split-hero-img {
+  width: 100%;
+  height: 85vh;
+  object-fit: contain;
+}
+
+/* content layout wrapper inside left panel */
+.left-content-wrapper {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  z-index: 6;
+}
+
+/* centered login wrapper */
+.auth-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
 }
 
-/* wrapper for the symptoms selection screen */
+.centered-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+/* logo and title styles */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.logo-icon {
+  width: 38px;
+  height: auto;
+  vertical-align: middle;
+}
+
+.logo-icon-auth {
+  width: 38px;
+  height: auto;
+}
+
+.logo-icon-large {
+  width: 44px;
+  height: auto;
+  vertical-align: middle;
+}
+
+.brand-title {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.brand-title-large {
+  font-size: 2.8rem;
+  margin: 0;
+}
+
+.ergo-text, .grow-text {
+  color: var(--green-primary);
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  color: var(--green-primary);
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+/* card container styles */
+.card-container {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.auth-card {
+  text-align: left;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.card-container h2 {
+  margin-top: 0;
+  color: var(--green-primary);
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+}
+
+/* input fields and buttons */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: #fafafa;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--green-primary);
+  background-color: #ffffff;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--green-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.primary-btn:hover {
+  background-color: #485c42;
+}
+
+.secondary-btn {
+  padding: 10px 20px;
+  background-color: var(--bg-container);
+  color: var(--green-primary);
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.outline-btn {
+  padding: 8px 18px;
+  background-color: transparent;
+  border: 1px solid var(--green-primary);
+  color: var(--green-primary);
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #555555;
+}
+
+.auth-switch a {
+  color: #222222;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* symptoms selection screen styles */
 .symptoms-wrapper {
   display: flex;
   flex-direction: column;
@@ -59,6 +273,9 @@ body {
   max-width: 650px;
   padding: 30px;
   box-sizing: border-box;
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .symptoms-header {
@@ -77,7 +294,6 @@ body {
   margin: 0;
 }
 
-/* grid layout for symptom cards matching reference */
 .symptoms-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -85,7 +301,6 @@ body {
   margin-bottom: 25px;
 }
 
-/* individual symptom option card styling */
 .symptom-card {
   background-color: var(--bg-container);
   padding: 20px;
@@ -94,7 +309,7 @@ body {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
 }
 
@@ -102,7 +317,6 @@ body {
   background-color: #dce1e5;
 }
 
-/* active selected state for symptom cards */
 .symptom-card.selected {
   background-color: #d2e4cb;
   border: 2px solid var(--green-primary);
@@ -113,7 +327,6 @@ body {
   color: #333333;
 }
 
-/* circular check indicator */
 .checkbox-circle {
   width: 22px;
   height: 22px;
@@ -141,163 +354,221 @@ body {
   margin: 0;
 }
 
-/* disabled button state before selecting a symptom */
 .disabled-btn {
   background-color: #9cb097 !important;
   cursor: not-allowed !important;
   opacity: 0.7;
 }
 
-/* general panel styling */
-.panel {
-  flex: 1;
+/* dashboard view styles */
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 1050px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 40px;
 }
 
-.left-panel {
-  background-color: var(--panel-left-bg);
-  align-items: flex-start;
-  padding-left: 60px;
-  padding-right: 60px;
+.logout-btn {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  background-color: transparent;
 }
 
-.left-content-wrapper {
-  width: 100%;
-  max-width: 320px;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.timer-section {
+  text-align: center;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-.right-panel {
-  background-color: var(--panel-right-bg);
+.timer-mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* logo placement */
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.centered-logo {
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.brand-title {
-  font-size: 2.5rem;
-  margin: 0;
-}
-
-.brand-title-large {
-  font-size: 3rem;
-  margin: 0;
-}
-
-.ergo-text {
+.timer-mode-btn {
+  padding: 12px 10px;
+  font-size: 0.85rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f1f3f5;
   color: var(--green-primary);
-  font-weight: 700;
-}
-
-.grow-text {
-  color: var(--green-primary);
-  font-weight: 700;
-}
-
-.brand-subtitle {
-  color: var(--green-primary);
-  font-size: 1rem;
-  margin-top: 0;
-  margin-bottom: 25px;
-}
-
-/* card boxes */
-.card-container {
-  background-color: var(--bg-card);
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-}
-
-.card-container h2 {
-  margin-top: 0;
-  color: #222222;
-}
-
-/* input fields */
-.input-group {
-  margin-bottom: 15px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-/* buttons */
-.primary-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--green-primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
-  font-family: inherit;
+  transition: all 0.2s ease;
 }
 
-.primary-btn:hover {
-  background-color: #485c42;
+.timer-mode-btn.active {
+  background-color: var(--green-primary);
+  color: white;
+  border-color: var(--green-primary);
 }
 
-/* switch links */
-.auth-switch {
-  text-align: center;
-  margin-top: 15px;
+.timer-display-box {
+  margin: 25px 0;
+}
+
+#timerDisplay {
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: var(--green-primary);
+  margin: 0;
+}
+
+.timer-phase-text {
+  font-size: 0.95rem;
+  color: #777777;
+  margin-top: 4px;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.timer-btn {
+  width: 90px;
+  padding: 10px 0;
   font-size: 0.9rem;
 }
 
-.auth-switch a {
-  color: var(--bg-dark);
+.settings-section h3.section-subtitle {
+  font-size: 0.95rem;
+  color: var(--green-primary);
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.focus-mode-row {
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eef0ea;
+  margin-bottom: 8px;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-title {
+  font-size: 0.9rem;
   font-weight: 600;
-  text-decoration: none;
+  color: #333333;
 }
 
-.auth-switch a:hover {
-  text-decoration: underline;
+.toggle-subtitle {
+  font-size: 0.78rem;
+  color: #777777;
 }
 
-/* image sizing */
-.logo-icon {
-  width: 38px;
-  height: auto;
-  vertical-align: middle;
+/* toggle switch custom sliders */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
 }
 
-.logo-icon-large {
-  width: 48px;
-  height: auto;
-  vertical-align: middle;
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-.hero-tree-img {
-  max-width: 85%;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #dddddd;
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: var(--green-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.slider.round {
+  border-radius: 22px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* modal popup styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-card {
+  background-color: white;
+  padding: 24px 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.modal-card h3 {
+  margin-top: 0;
+  color: var(--green-primary);
+}
+
+.modal-card p {
+  color: #555555;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
 }
