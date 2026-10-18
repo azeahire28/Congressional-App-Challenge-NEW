@@ -1,37 +1,38 @@
+// wait for the dom tree to load completely before executing script logic
 document.addEventListener("DOMContentLoaded", function () {
 
-  // grab dom elements for views and containers
+  // grab dom elements for main application views and container screens
   const authContainer = document.getElementById("authContainer");
   const centeredLoginContainer = document.getElementById("centeredLoginContainer");
   const symptomsView = document.getElementById("symptomsView");
   const dashboardView = document.getElementById("dashboardView");
 
-  // grab navigation links and buttons
+  // grab navigation links and view switcher buttons
   const switchToLogin = document.getElementById("switchToLogin");
   const switchToSignup = document.getElementById("switchToSignup");
   const createAccountBtn = document.getElementById("createAccountBtn");
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  // grab input fields for forms
+  // grab input form fields for login and sign up
   const signupUsername = document.getElementById("signupUsername");
   const signupPassword = document.getElementById("signupPassword");
   const loginUsername = document.getElementById("loginUsername");
   const loginPassword = document.getElementById("loginPassword");
 
-  // grab symptom selection elements
+  // grab symptom selection cards and action buttons
   const symptomCards = document.querySelectorAll(".symptom-card");
   const symptomCountText = document.getElementById("symptomCountText");
   const symptomsContinueBtn = document.getElementById("symptomsContinueBtn");
   const selectedSymptoms = new Set();
 
-  // grab modal popup elements
+  // grab custom notification modal elements
   const customModal = document.getElementById("customModal");
   const modalTitle = document.getElementById("modalTitle");
   const modalMessage = document.getElementById("modalMessage");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
 
-  // grab timer display and control buttons
+  // grab focus timer readout display and mode buttons
   const timerDisplay = document.getElementById("timerDisplay");
   const timerPhaseText = document.getElementById("timerPhaseText");
   const startTimerBtn = document.getElementById("startTimerBtn");
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetTimerBtn = document.getElementById("resetTimerBtn");
   const timerModeBtns = document.querySelectorAll(".timer-mode-btn");
 
-  // set up timer variables
+  // initialize default countdown timer variables
   let workDurationMinutes = 25;
   let breakDurationMinutes = 5;
   let timeRemainingSeconds = workDurationMinutes * 60;
@@ -47,70 +48,87 @@ document.addEventListener("DOMContentLoaded", function () {
   let isTimerRunning = false;
   let isWorkPhase = true;
 
-  // helper function to show alerts with custom modal
+  // helper function to pop up notification alerts using the custom modal
   function showAlertModal(title, message) {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
     customModal.classList.remove("hidden");
   }
 
+  // close custom notification modal on button click
   modalCloseBtn.addEventListener("click", function () {
     customModal.classList.add("hidden");
   });
 
-  // switch view from signup to login
+  // switch display from signup split screen to centered login view
   switchToLogin.addEventListener("click", function (event) {
     event.preventDefault();
     authContainer.classList.add("hidden");
     centeredLoginContainer.classList.remove("hidden");
   });
 
-  // switch view from login back to signup
+  // switch display from centered login view back to signup split screen
   switchToSignup.addEventListener("click", function (event) {
     event.preventDefault();
-    centeredLoginContainer.classList.remove("hidden");
+    centeredLoginContainer.classList.add("hidden");
     authContainer.classList.remove("hidden");
   });
 
-  // handle create account validation and transition
+  // handle create account button validation, duplicate username check, and navigation
   createAccountBtn.addEventListener("click", function () {
     const username = signupUsername.value.trim();
     const password = signupPassword.value.trim();
 
+    // validate empty inputs
     if (username === "" || password === "") {
       showAlertModal("Missing Information", "Please enter both a username and a password.");
       return;
     }
 
+    // validate password length
     if (password.length < 6) {
       showAlertModal("Password Too Short", "Please choose a password that is at least 6 characters long.");
       return;
     }
 
+    // check if the entered username already exists in local storage
+    const userKey = "ergoUser_" + username;
+    if (localStorage.getItem(userKey)) {
+      showAlertModal("Username Exists", "This username already exists. Please choose another one or log in.");
+      return;
+    }
+
+    // save account credentials to local storage and move to symptom selection screen
+    localStorage.setItem(userKey, password);
+    localStorage.setItem("currentActiveUser", username);
+
     authContainer.classList.add("hidden");
     symptomsView.classList.remove("hidden");
   });
 
-  // handle login validation, transition, and load preferences
+  // handle login form validation and navigation to dashboard
   loginBtn.addEventListener("click", function () {
     const username = loginUsername.value.trim();
     const password = loginPassword.value.trim();
 
+    // validate empty inputs
     if (username === "" || password === "") {
       showAlertModal("Login Error", "Please enter your username and password.");
       return;
     }
 
+    // transition to dashboard view and load saved stretch preferences
     centeredLoginContainer.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     loadUserStretchPreferences();
   });
 
-  // handle clicking symptom cards to toggle selection
+  // handle clicking symptom cards to toggle active selection
   symptomCards.forEach(function (card) {
     card.addEventListener("click", function () {
       const symptomKey = card.getAttribute("data-symptom");
 
+      // add or remove selected card styling and track key in set
       if (card.classList.contains("selected")) {
         card.classList.remove("selected");
         selectedSymptoms.delete(symptomKey);
@@ -119,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedSymptoms.add(symptomKey);
       }
 
+      // update continue button state based on selection count
       if (selectedSymptoms.size > 0) {
         symptomsContinueBtn.removeAttribute("disabled");
         symptomsContinueBtn.classList.remove("disabled-btn");
@@ -131,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // continue to dashboard from symptoms screen, save choices, and apply preferences
+  // save user symptom choices to local storage and proceed to dashboard
   symptomsContinueBtn.addEventListener("click", function () {
     if (selectedSymptoms.size > 0) {
       localStorage.setItem("userSymptoms", JSON.stringify(Array.from(selectedSymptoms)));
@@ -141,19 +160,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // automatically update dashboard toggles based on saved setup choices
+  // automatically sync dashboard toggle switches with saved setup choices
   function loadUserStretchPreferences() {
     const savedSymptoms = JSON.parse(localStorage.getItem("userSymptoms")) || [];
 
+    // mapping setup symptom keys directly to matching dashboard toggles
     const preferenceMap = {
       "eyes": document.getElementById("stretchEyeToggle"),
       "neck": document.getElementById("stretchNeckToggle"),
       "back": document.getElementById("stretchBackToggle"),
       "wrist": document.getElementById("stretchWristToggle"),
-      "legs": document.getElementById("stretchHipToggle"),
-      "shoulders": document.getElementById("stretchNeckToggle")
+      "hip": document.getElementById("stretchHipToggle"),
+      "headache": document.getElementById("stretchHeadacheToggle")
     };
 
+    // check or uncheck toggles based on saved array
     Object.keys(preferenceMap).forEach(key => {
       const toggle = preferenceMap[key];
       if (toggle) {
@@ -162,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // handle dashboard logout back to login screen
+  // handle dashboard logout button to reset inputs and return to login screen
   logoutBtn.addEventListener("click", function () {
     signupUsername.value = "";
     signupPassword.value = "";
@@ -173,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     centeredLoginContainer.classList.remove("hidden");
   });
 
-  // update formatted time remaining on timer display
+  // format time remaining in mm:ss format and update timer readout text
   function updateTimerDisplay() {
     const minutes = Math.floor(timeRemainingSeconds / 60);
     const seconds = timeRemainingSeconds % 60;
@@ -182,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
     timerDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
   }
 
-  // start countdown timer interval
+  // start focus timer countdown interval
   function startTimer() {
     if (isTimerRunning) return;
     
@@ -196,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         clearInterval(timerInterval);
         isTimerRunning = false;
         
+        // switch timer phases between work focus and break time
         if (isWorkPhase) {
           isWorkPhase = false;
           timeRemainingSeconds = breakDurationMinutes * 60;
@@ -213,13 +235,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
   }
 
-  // pause countdown timer
+  // pause running timer interval
   function pauseTimer() {
     clearInterval(timerInterval);
     isTimerRunning = false;
   }
 
-  // reset timer back to initial duration
+  // reset timer back to selected phase starting time
   function resetTimer() {
     pauseTimer();
     isWorkPhase = true;
@@ -228,12 +250,12 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTimerDisplay();
   }
 
-  // timer button event listeners
+  // attach event listeners to timer control buttons
   startTimerBtn.addEventListener("click", startTimer);
   pauseTimerBtn.addEventListener("click", pauseTimer);
   resetTimerBtn.addEventListener("click", resetTimer);
 
-  // handle clicking different timer mode preset buttons
+  // handle selecting different timer mode presets
   timerModeBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       timerModeBtns.forEach(function (b) { b.classList.remove("active"); });
@@ -245,5 +267,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // initial call to render default timer time on screen load
   updateTimerDisplay();
 });

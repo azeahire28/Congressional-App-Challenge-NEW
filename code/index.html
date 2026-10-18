@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- set document encoding and responsive viewport -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- page title -->
   <title>ErgoGrow - Your Desk Buddy</title>
   
   <!-- stylesheet link -->
@@ -17,7 +20,7 @@
     <div class="panel left-panel">
       <div class="left-content-wrapper">
         
-        <!-- logo and branding -->
+        <!-- logo and branding header -->
         <div class="logo-container">
           <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Icon" class="logo-icon" />
           <h1 class="brand-title"><span class="ergo-text">Ergo</span><span class="grow-text">Grow</span></h1>
@@ -37,7 +40,7 @@
             <button type="button" id="createAccountBtn" class="primary-btn">Create account</button>
           </form>
           
-          <!-- switch link to login -->
+          <!-- switch link to login screen -->
           <div class="auth-switch">
             <span>Have an account? <a href="#" id="switchToLogin">Log in</a></span>
           </div>
@@ -79,7 +82,7 @@
           <button type="button" id="loginBtn" class="primary-btn">Log in</button>
         </form>
         
-        <!-- switch link back to signup -->
+        <!-- switch link back to signup screen -->
         <div class="auth-switch">
           <span>Don't have an account? <a href="#" id="switchToSignup">Sign up</a></span>
         </div>
@@ -89,42 +92,55 @@
   </div>
 
 
-  <!-- symptoms preference screen -->
+  <!-- symptoms preference screen with matching naming convention -->
   <div id="symptomsView" class="full-page-container hidden">
     <div class="symptoms-wrapper">
       
-      <!-- header text -->
+      <!-- header text for symptom setup flow -->
       <div class="symptoms-header">
         <h2>What bothers you most?</h2>
         <p>Select any areas where you experience discomfort during your workday.</p>
       </div>
 
-      <!-- grid of selectable symptom cards -->
+      <!-- grid of selectable symptom cards matching dashboard preferences -->
       <div class="symptoms-grid">
-        <div class="symptom-card" data-symptom="neck">
-          <span>Neck Stiffness</span>
-          <div class="checkbox-circle"></div>
-        </div>
-        <div class="symptom-card" data-symptom="shoulders">
-          <span>Shoulder Tension</span>
-          <div class="checkbox-circle"></div>
-        </div>
-        <div class="symptom-card" data-symptom="wrist">
-          <span>Wrist / Hand Strain</span>
-          <div class="checkbox-circle"></div>
-        </div>
-        <div class="symptom-card" data-symptom="back">
-          <span>Lower Back Pain</span>
-          <div class="checkbox-circle"></div>
-        </div>
+        
+        <!-- eye strain symptom card -->
         <div class="symptom-card" data-symptom="eyes">
-          <span>Eye Fatigue</span>
+          <span>Eye Strain</span>
           <div class="checkbox-circle"></div>
         </div>
-        <div class="symptom-card" data-symptom="legs">
-          <span>Leg Discomfort</span>
+        
+        <!-- neck tension symptom card -->
+        <div class="symptom-card" data-symptom="neck">
+          <span>Neck Tension</span>
           <div class="checkbox-circle"></div>
         </div>
+        
+        <!-- back & posture symptom card -->
+        <div class="symptom-card" data-symptom="back">
+          <span>Back & Posture</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        
+        <!-- wrist & hand tension symptom card -->
+        <div class="symptom-card" data-symptom="wrist">
+          <span>Wrist & Hand Tension</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        
+        <!-- hip tightness symptom card -->
+        <div class="symptom-card" data-symptom="hip">
+          <span>Hip Tightness</span>
+          <div class="checkbox-circle"></div>
+        </div>
+        
+        <!-- tension headaches symptom card -->
+        <div class="symptom-card" data-symptom="headache">
+          <span>Tension Headaches</span>
+          <div class="checkbox-circle"></div>
+        </div>
+
       </div>
 
       <!-- footer instructions and continue button -->
@@ -141,7 +157,7 @@
   <div id="dashboardView" class="full-page-container hidden">
     <div class="dashboard-wrapper">
       
-      <!-- dashboard top header with logo and logout -->
+      <!-- dashboard top header with logo and logout button -->
       <div class="dashboard-header">
         <div class="logo-container">
           <img src="./assets/ErgoGrow Logo.png" alt="ErgoGrow Logo" class="logo-icon-large" />
@@ -150,7 +166,7 @@
         <button id="logoutBtn" class="outline-btn logout-btn">Log Out</button>
       </div>
 
-      <!-- two column layout for dashboard content -->
+      <!-- two column layout for main dashboard content -->
       <div class="dashboard-grid">
         
         <!-- focus timer section card -->
@@ -165,13 +181,13 @@
             <button class="timer-mode-btn" data-work="60" data-break="15">Flowtime</button>
           </div>
 
-          <!-- big timer countdown readout -->
+          <!-- big timer countdown readout display -->
           <div class="timer-display-box">
             <h1 id="timerDisplay">25:00</h1>
             <p id="timerPhaseText" class="timer-phase-text">Focus Phase</p>
           </div>
 
-          <!-- start pause reset buttons -->
+          <!-- start, pause, and reset control buttons -->
           <div class="timer-controls">
             <button id="startTimerBtn" class="primary-btn timer-btn">Start</button>
             <button id="pauseTimerBtn" class="secondary-btn timer-btn">Pause</button>
@@ -207,9 +223,10 @@
             </label>
           </div>
 
-          <!-- stretch preferences toggles list -->
+          <!-- stretch preferences toggles list header -->
           <h3 class="section-subtitle">Stretch Preferences</h3>
 
+          <!-- eye strain toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Eye Strain</span>
             <label class="switch">
@@ -218,6 +235,7 @@
             </label>
           </div>
 
+          <!-- neck tension toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Neck Tension</span>
             <label class="switch">
@@ -226,6 +244,7 @@
             </label>
           </div>
 
+          <!-- back & posture toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Back & Posture</span>
             <label class="switch">
@@ -234,6 +253,7 @@
             </label>
           </div>
 
+          <!-- wrist & hand tension toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Wrist & Hand Tension</span>
             <label class="switch">
@@ -242,6 +262,7 @@
             </label>
           </div>
 
+          <!-- hip tightness toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Hip Tightness</span>
             <label class="switch">
@@ -250,6 +271,7 @@
             </label>
           </div>
 
+          <!-- tension headaches toggle row -->
           <div class="toggle-row">
             <span class="toggle-title">Tension Headaches</span>
             <label class="switch">
@@ -265,7 +287,7 @@
   </div>
 
 
-  <!-- custom validation modal popup -->
+  <!-- custom validation modal popup overlay -->
   <div id="customModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <h3 id="modalTitle">Notice</h3>
@@ -274,7 +296,7 @@
     </div>
   </div>
 
-  <!-- javascript main file -->
+  <!-- javascript main file script tag -->
   <script src="main.js"></script>
 </body>
 </html>
