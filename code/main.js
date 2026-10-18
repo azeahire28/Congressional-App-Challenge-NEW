@@ -1,137 +1,225 @@
-// grabbing element references from the DOM
-var usernameInput = document.getElementById("usernameInput");
-var passwordInput = document.getElementById("passwordInput");
-var createAccountButton = document.getElementById("createAccountButton");
+document.addEventListener("DOMContentLoaded", function () {
 
-var loginUsernameInput = document.getElementById("loginUsernameInput");
-var loginPasswordInput = document.getElementById("loginPasswordInput");
-var loginButton = document.getElementById("loginButton");
+  // grab dom elements for views and containers
+  const authContainer = document.getElementById("authContainer");
+  const centeredLoginContainer = document.getElementById("centeredLoginContainer");
+  const symptomsView = document.getElementById("symptomsView");
+  const dashboardView = document.getElementById("dashboardView");
 
-var signupScreen = document.getElementById("signupView");
-var loginScreen = document.getElementById("loginView");
-var symptomsScreen = document.getElementById("symptomsView");
+  // grab navigation links and buttons
+  const switchToLogin = document.getElementById("switchToLogin");
+  const switchToSignup = document.getElementById("switchToSignup");
+  const createAccountBtn = document.getElementById("createAccountBtn");
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-var showLoginLink = document.getElementById("showLoginLink");
-var showSignupLink = document.getElementById("showSignupLink");
+  // grab input fields for forms
+  const signupUsername = document.getElementById("signupUsername");
+  const signupPassword = document.getElementById("signupPassword");
+  const loginUsername = document.getElementById("loginUsername");
+  const loginPassword = document.getElementById("loginPassword");
 
-var symptomCards = document.querySelectorAll(".symptom-card");
-var startWellnessButton = document.getElementById("startWellnessButton");
+  // grab symptom selection elements
+  const symptomCards = document.querySelectorAll(".symptom-card");
+  const symptomCountText = document.getElementById("symptomCountText");
+  const symptomsContinueBtn = document.getElementById("symptomsContinueBtn");
+  const selectedSymptoms = new Set();
 
-var currentUser = "";
-var isAuthenticated = false;
-var selectedSymptoms = [];
+  // grab modal popup elements
+  const customModal = document.getElementById("customModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMessage = document.getElementById("modalMessage");
+  const modalCloseBtn = document.getElementById("modalCloseBtn");
 
-// timer structure inspired by standard Pomodoro timer patterns
-var timerLength = 1500; 
-var timerInterval = null; 
-var isTimerRunning = false; 
-var breakCountNumber = 0; 
+  // grab timer display and control buttons
+  const timerDisplay = document.getElementById("timerDisplay");
+  const timerPhaseText = document.getElementById("timerPhaseText");
+  const startTimerBtn = document.getElementById("startTimerBtn");
+  const pauseTimerBtn = document.getElementById("pauseTimerBtn");
+  const resetTimerBtn = document.getElementById("resetTimerBtn");
+  const timerModeBtns = document.querySelectorAll(".timer-mode-btn");
 
-// helper function to check for forbidden characters using basic RegEx validation
-function containsInvalidCharacters(str) {
-  var invalidRegex = /[^a-zA-Z0-9_]/;
-  return invalidRegex.test(str);
-}
+  // set up timer variables
+  let workDurationMinutes = 25;
+  let breakDurationMinutes = 5;
+  let timeRemainingSeconds = workDurationMinutes * 60;
+  let timerInterval = null;
+  let isTimerRunning = false;
+  let isWorkPhase = true;
 
-// handle account creation with error checks
-// warning popup pattern inspired by standard Web API form validation
-createAccountButton.addEventListener("click", function() {
-  var enteredUsername = usernameInput.value.trim();
-  var enteredPassword = passwordInput.value;
-
-  // check if fields are empty
-  if (enteredUsername === "" || enteredPassword === "") {
-    console.log("Warning: Please fill in all required fields.");
-    alert("Please fill in all required fields.");
-    return;
+  // helper function to show alerts with custom modal
+  function showAlertModal(title, message) {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    customModal.classList.remove("hidden");
   }
 
-  // check if password is too short
-  if (enteredPassword.length < 6) {
-    console.log("Warning: Password is too short.");
-    alert("Password must be at least 6 characters long.");
-    return;
-  }
+  modalCloseBtn.addEventListener("click", function () {
+    customModal.classList.add("hidden");
+  });
 
-  // check if username uses unacceptable characters
-  if (containsInvalidCharacters(enteredUsername)) {
-    console.log("Warning: Username contains unacceptable characters.");
-    alert("Username can only contain letters, numbers, and underscores.");
-    return;
-  }
+  // switch view from signup to login
+  switchToLogin.addEventListener("click", function (event) {
+    event.preventDefault();
+    authContainer.classList.add("hidden");
+    centeredLoginContainer.classList.remove("hidden");
+  });
 
-  // saving user info and moving to the symptoms selection screen
-  currentUser = enteredUsername;
-  isAuthenticated = true;
-  console.log("Account successfully created for user: " + currentUser);
-  
-  signupScreen.classList.add("hidden");
-  symptomsScreen.classList.remove("hidden");
-});
+  // switch view from login back to signup
+  switchToSignup.addEventListener("click", function (event) {
+    event.preventDefault();
+    centeredLoginContainer.classList.add("hidden");
+    authContainer.classList.remove("hidden");
+  });
 
-// handle login click with basic validation and transition to symptoms screen
-loginButton.addEventListener("click", function() {
-  var inputUser = loginUsernameInput.value.trim();
-  var inputPass = loginPasswordInput.value;
+  // handle create account validation and transition
+  createAccountBtn.addEventListener("click", function () {
+    const username = signupUsername.value.trim();
+    const password = signupPassword.value.trim();
 
-  if (inputUser === "" || inputPass === "") {
-    console.log("Warning: Missing login credentials.");
-    alert("Please enter both your username and password.");
-    return;
-  }
-
-  currentUser = inputUser;
-  isAuthenticated = true;
-  console.log("User successfully logged in: " + currentUser);
-
-  loginScreen.classList.add("hidden");
-  symptomsScreen.classList.remove("hidden");
-});
-
-// handling symptom selection cards toggle logic
-symptomCards.forEach(function(card) {
-  card.addEventListener("click", function() {
-    card.classList.toggle("selected");
-    var symptomName = card.getAttribute("data-symptom");
-
-    if (card.classList.contains("selected")) {
-      selectedSymptoms.push(symptomName);
-    } else {
-      var index = selectedSymptoms.indexOf(symptomName);
-      if (index > -1) {
-        selectedSymptoms.splice(index, 1);
-      }
+    if (username === "" || password === "") {
+      showAlertModal("Missing Information", "Please enter both a username and a password.");
+      return;
     }
 
-    // enabling continue button once at least one symptom is picked
-    if (selectedSymptoms.length > 0) {
-      startWellnessButton.classList.remove("disabled-btn");
-      startWellnessButton.removeAttribute("disabled");
-    } else {
-      startWellnessButton.classList.add("disabled-btn");
-      startWellnessButton.setAttribute("disabled", "true");
+    if (password.length < 6) {
+      showAlertModal("Password Too Short", "Please choose a password that is at least 6 characters long.");
+      return;
+    }
+
+    authContainer.classList.add("hidden");
+    symptomsView.classList.remove("hidden");
+  });
+
+  // handle login validation and transition
+  loginBtn.addEventListener("click", function () {
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    if (username === "" || password === "") {
+      showAlertModal("Login Error", "Please enter your username and password.");
+      return;
+    }
+
+    centeredLoginContainer.classList.add("hidden");
+    dashboardView.classList.remove("hidden");
+  });
+
+  // handle clicking symptom cards to toggle selection
+  symptomCards.forEach(function (card) {
+    card.addEventListener("click", function () {
+      const symptomKey = card.getAttribute("data-symptom");
+
+      if (card.classList.contains("selected")) {
+        card.classList.remove("selected");
+        selectedSymptoms.delete(symptomKey);
+      } else {
+        card.classList.add("selected");
+        selectedSymptoms.add(symptomKey);
+      }
+
+      if (selectedSymptoms.size > 0) {
+        symptomsContinueBtn.removeAttribute("disabled");
+        symptomsContinueBtn.classList.remove("disabled-btn");
+        symptomCountText.textContent = `${selectedSymptoms.size} symptom area(s) selected.`;
+      } else {
+        symptomsContinueBtn.setAttribute("disabled", "true");
+        symptomsContinueBtn.classList.add("disabled-btn");
+        symptomCountText.textContent = "Please select at least 1 symptom to continue.";
+      }
+    });
+  });
+
+  // continue to dashboard from symptoms screen
+  symptomsContinueBtn.addEventListener("click", function () {
+    if (selectedSymptoms.size > 0) {
+      symptomsView.classList.add("hidden");
+      dashboardView.classList.remove("hidden");
     }
   });
-});
 
-// handle starting the main wellness plan after symptom selection
-startWellnessButton.addEventListener("click", function() {
-  if (selectedSymptoms.length > 0) {
-    console.log("User selected symptoms: " + selectedSymptoms.join(", "));
-    alert("Wellness plan started! Transitioning to timer dashboard...");
-    // Next screen (timer dashboard) will go here!
+  // handle dashboard logout back to login screen
+  logoutBtn.addEventListener("click", function () {
+    signupUsername.value = "";
+    signupPassword.value = "";
+    loginUsername.value = "";
+    loginPassword.value = "";
+
+    dashboardView.classList.add("hidden");
+    centeredLoginContainer.classList.remove("hidden");
+  });
+
+  // update formatted time remaining on timer display
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemainingSeconds / 60);
+    const seconds = timeRemainingSeconds % 60;
+    const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+    const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+    timerDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
   }
-});
 
-// troubleshooting fix: view-switching structure inspired by Electron single-page app patterns
-showLoginLink.addEventListener("click", function(event) {
-  event.preventDefault();
-  signupScreen.classList.add("hidden");
-  loginScreen.classList.remove("hidden");
-});
+  // start countdown timer interval
+  function startTimer() {
+    if (isTimerRunning) return;
+    
+    isTimerRunning = true;
 
-showSignupLink.addEventListener("click", function(event) {
-  event.preventDefault();
-  loginScreen.classList.add("hidden");
-  signupScreen.classList.remove("hidden");
+    timerInterval = setInterval(function () {
+      if (timeRemainingSeconds > 0) {
+        timeRemainingSeconds--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        
+        if (isWorkPhase) {
+          isWorkPhase = false;
+          timeRemainingSeconds = breakDurationMinutes * 60;
+          timerPhaseText.textContent = "Stretch Break Phase";
+          showAlertModal("Time to Stretch!", "Take a quick break and perform your ergonomic stretches.");
+        } else {
+          isWorkPhase = true;
+          timeRemainingSeconds = workDurationMinutes * 60;
+          timerPhaseText.textContent = "Focus Phase";
+          showAlertModal("Break Complete", "Ready to start your next focus session?");
+        }
+        
+        updateTimerDisplay();
+      }
+    }, 1000);
+  }
+
+  // pause countdown timer
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+  }
+
+  // reset timer back to initial duration
+  function resetTimer() {
+    pauseTimer();
+    isWorkPhase = true;
+    timeRemainingSeconds = workDurationMinutes * 60;
+    timerPhaseText.textContent = "Focus Phase";
+    updateTimerDisplay();
+  }
+
+  // timer button event listeners
+  startTimerBtn.addEventListener("click", startTimer);
+  pauseTimerBtn.addEventListener("click", pauseTimer);
+  resetTimerBtn.addEventListener("click", resetTimer);
+
+  // handle clicking different timer mode preset buttons
+  timerModeBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      timerModeBtns.forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+
+      workDurationMinutes = parseInt(btn.getAttribute("data-work"), 10);
+      breakDurationMinutes = parseInt(btn.getAttribute("data-break"), 10);
+      resetTimer();
+    });
+  });
+
+  updateTimerDisplay();
 });
