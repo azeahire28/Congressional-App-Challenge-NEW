@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // switch view from login back to signup
   switchToSignup.addEventListener("click", function (event) {
     event.preventDefault();
-    centeredLoginContainer.classList.add("hidden");
+    centeredLoginContainer.classList.remove("hidden");
     authContainer.classList.remove("hidden");
   });
 
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     symptomsView.classList.remove("hidden");
   });
 
-  // handle login validation and transition
+  // handle login validation, transition, and load preferences
   loginBtn.addEventListener("click", function () {
     const username = loginUsername.value.trim();
     const password = loginPassword.value.trim();
@@ -103,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     centeredLoginContainer.classList.add("hidden");
     dashboardView.classList.remove("hidden");
+    loadUserStretchPreferences();
   });
 
   // handle clicking symptom cards to toggle selection
@@ -130,13 +131,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // continue to dashboard from symptoms screen
+  // continue to dashboard from symptoms screen, save choices, and apply preferences
   symptomsContinueBtn.addEventListener("click", function () {
     if (selectedSymptoms.size > 0) {
+      localStorage.setItem("userSymptoms", JSON.stringify(Array.from(selectedSymptoms)));
       symptomsView.classList.add("hidden");
       dashboardView.classList.remove("hidden");
+      loadUserStretchPreferences();
     }
   });
+
+  // automatically update dashboard toggles based on saved setup choices
+  function loadUserStretchPreferences() {
+    const savedSymptoms = JSON.parse(localStorage.getItem("userSymptoms")) || [];
+
+    const preferenceMap = {
+      "eyes": document.getElementById("stretchEyeToggle"),
+      "neck": document.getElementById("stretchNeckToggle"),
+      "back": document.getElementById("stretchBackToggle"),
+      "wrist": document.getElementById("stretchWristToggle"),
+      "legs": document.getElementById("stretchHipToggle"),
+      "shoulders": document.getElementById("stretchNeckToggle")
+    };
+
+    Object.keys(preferenceMap).forEach(key => {
+      const toggle = preferenceMap[key];
+      if (toggle) {
+        toggle.checked = savedSymptoms.includes(key);
+      }
+    });
+  }
 
   // handle dashboard logout back to login screen
   logoutBtn.addEventListener("click", function () {

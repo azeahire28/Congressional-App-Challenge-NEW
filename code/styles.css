@@ -11,6 +11,7 @@
   --green-accent: #8EB897;  
 }
 
+/* body resets and base styling */
 body {
   margin: 0;
   padding: 0;
@@ -41,6 +42,7 @@ body {
   padding: 20px;
 }
 
+/* utility class for hidden elements */
 .hidden {
   display: none !important;
 }
@@ -88,6 +90,7 @@ body {
   object-fit: contain;
 }
 
+/* content layout wrapper inside left panel */
 .left-content-wrapper {
   width: 100%;
   max-width: 320px;
@@ -483,7 +486,7 @@ body {
   color: #777777;
 }
 
-/* toggle switch styles */
+/* toggle switch custom sliders */
 .switch {
   position: relative;
   display: inline-block;
