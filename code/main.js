@@ -24,6 +24,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const startWellnessButton = document.getElementById("startWellnessButton");
   const selectedSymptoms = new Set();
 
+  // Grab toggle elements on the dashboard settings panel
+  const preferenceMap = {
+    "Eye Strain": document.getElementById("stretchEyeToggle"),
+    "Neck Tension": document.getElementById("stretchNeckToggle"),
+    "Back & Posture": document.getElementById("stretchBackToggle"),
+    "Wrist & Hand Tension": document.getElementById("stretchWristToggle"),
+    "Hip tightness": document.getElementById("stretchHipToggle"),
+    "Tension Headaches": document.getElementById("stretchHeadacheToggle")
+  };
+
   // Grab custom modal elements for validation messages and alerts
   const customModal = document.getElementById("customModal");
   const modalTitle = document.getElementById("modalTitle");
@@ -112,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
     symptomsView.classList.remove("hidden");
   });
 
-  // Validate login credentials and open the user's dashboard
+  // Validate login credentials and transition directly to the dashboard view
   loginButton.addEventListener("click", function () {
     const username = loginUsernameInput.value.trim();
     const password = loginPasswordInput.value.trim();
@@ -122,8 +132,17 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    const userKey = "ergoUser_" + username;
+    const storedPassword = localStorage.getItem(userKey);
+
+    // Save user credentials if logging in for the first time
+    if (!storedPassword) {
+      localStorage.setItem(userKey, password);
+    }
+
     localStorage.setItem("currentActiveUser", username);
 
+    // Transition directly to dashboard screen
     loginView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     loadUserStretchPreferences();
@@ -152,39 +171,68 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Save selected symptoms uniquely under the active username and open dashboard
+  // Save selected symptoms uniquely under the active username and persist toggle states
   startWellnessButton.addEventListener("click", function () {
     if (selectedSymptoms.size > 0) {
       const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
-      localStorage.setItem("userSymptoms_" + activeUser, JSON.stringify(Array.from(selectedSymptoms)));
+      const symptomArray = Array.from(selectedSymptoms);
+      localStorage.setItem("userSymptoms_" + activeUser, JSON.stringify(symptomArray));
       
+      // Save initial toggle states so they persist across logouts
+      Object.keys(preferenceMap).forEach(key => {
+        const toggle = preferenceMap[key];
+        if (toggle) {
+          toggle.checked = symptomArray.includes(key);
+        }
+      });
+      localStorage.setItem("userToggleStates_" + activeUser, JSON.stringify(getToggleStates(activeUser)));
+
       symptomsView.classList.add("hidden");
       dashboardView.classList.remove("hidden");
       loadUserStretchPreferences();
     }
   });
 
-  // Retrieve active user's saved symptoms and synchronize dashboard toggle switches
+  // Helper to capture toggle checkbox states
+  function getToggleStates(username) {
+    const states = {};
+    Object.keys(preferenceMap).forEach(key => {
+      const toggle = preferenceMap[key];
+      if (toggle) {
+        states[key] = toggle.checked;
+      }
+    });
+    return states;
+  }
+
+  // Retrieve active user's saved toggle preferences and synchronize dashboard switches
   function loadUserStretchPreferences() {
     const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
+    const savedStates = JSON.parse(localStorage.getItem("userToggleStates_" + activeUser));
     const savedSymptoms = JSON.parse(localStorage.getItem("userSymptoms_" + activeUser)) || [];
-
-    const preferenceMap = {
-      "Eye Strain": document.getElementById("stretchEyeToggle"),
-      "Neck Tension": document.getElementById("stretchNeckToggle"),
-      "Back & Posture": document.getElementById("stretchBackToggle"),
-      "Wrist & Hand Tension": document.getElementById("stretchWristToggle"),
-      "Hip tightness": document.getElementById("stretchHipToggle"),
-      "Tension Headaches": document.getElementById("stretchHeadacheToggle")
-    };
 
     Object.keys(preferenceMap).forEach(key => {
       const toggle = preferenceMap[key];
       if (toggle) {
-        toggle.checked = savedSymptoms.includes(key);
+        if (savedStates && savedStates[key] !== undefined) {
+          toggle.checked = savedStates[key];
+        } else {
+          toggle.checked = savedSymptoms.includes(key);
+        }
       }
     });
   }
+
+  // Save toggle changes whenever a user toggles them on the dashboard
+  Object.keys(preferenceMap).forEach(key => {
+    const toggle = preferenceMap[key];
+    if (toggle) {
+      toggle.addEventListener("change", function () {
+        const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
+        localStorage.setItem("userToggleStates_" + activeUser, JSON.stringify(getToggleStates(activeUser)));
+      });
+    }
+  });
 
   // Clear authentication input boxes and return to login screen on logout
   logoutButton.addEventListener("click", function () {

@@ -1,4 +1,4 @@
-/* Color palette and variable tokens[cite: 13] */
+/* Color palette and variable tokens */
 :root {
   --bg-dark: #040403;
   --bg-card: #FFFFFF;
@@ -9,7 +9,7 @@
   --green-accent: #8EB897;
 }
 
-/* Base body setup[cite: 13] */
+/* Base body setup */
 body {
   margin: 0;
   padding: 0;
@@ -23,14 +23,14 @@ body {
   display: none !important;
 }
 
-/* Split-screen container layout[cite: 13] */
+/* Split-screen container layout */
 .app-container {
   display: flex;
   height: 100vh;
   width: 100vw;
 }
 
-/* Full-screen view container wrapper[cite: 13] */
+/* Full-screen view container wrapper */
 .full-page-container {
   display: flex;
   justify-content: center;
@@ -40,7 +40,7 @@ body {
   background-color: var(--panel-left-bg);
 }
 
-/* Centered login card wrapper[cite: 14] */
+/* Centered login card wrapper */
 .centered-login-wrapper {
   display: flex;
   flex-direction: column;
@@ -49,7 +49,7 @@ body {
   max-width: 360px;
 }
 
-/* Symptoms selection screen wrapper[cite: 14] */
+/* Symptoms selection screen wrapper */
 .symptoms-wrapper {
   display: flex;
   flex-direction: column;
@@ -78,7 +78,7 @@ body {
   margin: 0;
 }
 
-/* Grid layout for symptom option cards[cite: 14] */
+/* Grid layout for symptom option cards */
 .symptoms-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -86,7 +86,7 @@ body {
   margin-bottom: 25px;
 }
 
-/* Individual symptom card styling[cite: 15] */
+/* Individual symptom card styling */
 .symptom-card {
   background-color: var(--bg-container);
   padding: 20px;
@@ -103,7 +103,7 @@ body {
   background-color: #dce1e5;
 }
 
-/* Active selected state for symptom cards[cite: 15] */
+/* Active selected state for symptom cards */
 .symptom-card.selected {
   background-color: #d2e4cb;
   border: 2px solid var(--green-primary);
@@ -114,7 +114,7 @@ body {
   color: #333333;
 }
 
-/* Check indicator circle inside symptom cards[cite: 15] */
+/* Check indicator circle inside symptom cards */
 .checkbox-circle {
   width: 22px;
   height: 22px;
@@ -142,14 +142,14 @@ body {
   margin: 0;
 }
 
-/* Disabled state style for continue buttons[cite: 16] */
+/* Disabled state style for continue buttons */
 .disabled-btn {
   background-color: #9cb097 !important;
   cursor: not-allowed !important;
   opacity: 0.7;
 }
 
-/* Split panel layout styling[cite: 16] */
+/* Split panel layout styling */
 .panel {
   flex: 1;
   display: flex;
@@ -175,19 +175,34 @@ body {
 
 .right-panel {
   background-color: var(--panel-right-bg);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  overflow: visible; /* Allows the blowing leaves to spill over onto the left panel for it to finally look like how we want it to */
 }
 
-/* Brand header and logo sizing[cite: 17, 19] */
+.hero-illustration-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: visible;
+}
+
+/* Logo icon and brand title container */
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   margin-bottom: 4px;
 }
 
 .centered-logo {
   justify-content: center;
   margin-bottom: 16px;
+  gap: 10px;
 }
 
 .brand-title {
@@ -217,7 +232,7 @@ body {
   margin-bottom: 25px;
 }
 
-/* Card box containers[cite: 18] */
+/* Card box containers */
 .card-container {
   background-color: var(--bg-card);
   padding: 30px;
@@ -232,7 +247,7 @@ body {
   color: #222222;
 }
 
-/* Form input fields[cite: 18] */
+/* Form input fields */
 .input-group {
   margin-bottom: 15px;
 }
@@ -246,7 +261,7 @@ body {
   font-family: inherit;
 }
 
-/* Primary buttons[cite: 18] */
+/* Primary buttons */
 .primary-btn {
   width: 100%;
   padding: 12px;
@@ -280,7 +295,6 @@ body {
   background-color: rgba(91, 117, 83, 0.1);
 }
 
-/* Switch link styling[cite: 19] */
 .auth-switch {
   text-align: center;
   margin-top: 15px;
@@ -297,30 +311,27 @@ body {
   text-decoration: underline;
 }
 
-/* Illustration asset sizing[cite: 19] */
 .logo-icon {
-  width: 38px;
+  width: 72px;
   height: auto;
   vertical-align: middle;
 }
 
 .logo-icon-large {
-  width: 48px;
+  width: 88px;
   height: auto;
   vertical-align: middle;
 }
 
+/* Tree illustration sizing */
 .hero-tree-img {
-  max-width: 85%;
-  max-height: 80vh;
+  height: 110vh; /* Scale up tree height to match the larger reference design */
   width: auto;
-  height: auto;
+  max-width: none;
   object-fit: contain;
-  display: block;
-  margin: 0 auto;
+  transform: translateX(-18%); /* This pulls the enlarged tree and leaves left across the line */
 }
 
-/* Dashboard container layouts */
 .dashboard-wrapper {
   width: 90%;
   max-width: 1000px;
@@ -441,7 +452,6 @@ body {
   gap: 10px;
 }
 
-/* Custom switch toggle styling */
 .switch {
   position: relative;
   display: inline-block;
@@ -493,7 +503,6 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-/* Modal popup card styling */
 .modal-backdrop {
   position: fixed;
   top: 0;
