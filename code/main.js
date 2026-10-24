@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const symptomsView = document.getElementById("symptomsView");
   const dashboardView = document.getElementById("dashboardView");
 
+  // Initialize idle tracking variables for inactivity check-ins
+  let idleTimeSeconds = 0;
+  const idleThresholdMinutes = 15; // 15 minutes threshold before asking "Are you still there?"
+  let awayAlertActive = false;
+
   // Grab navigation triggers and buttons across authentication flows
   const showLoginLink = document.getElementById("showLoginLink");
   const showSignupLink = document.getElementById("showSignupLink");
@@ -58,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let timerInterval = null;
   let isTimerRunning = false;
   let isWorkPhase = true;
+  let timerEndTime = null; // stores the exact future millisecond timestamp
 
   // Helper function to populate and show the custom alert modal
   function showAlertModal(title, message) {
@@ -66,10 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
     customModal.classList.remove("hidden");
   }
 
-  // Dismiss the custom modal when the confirmation button is clicked
-  modalCloseBtn.addEventListener("click", function () {
-    customModal.classList.add("hidden");
-  });
+// Dismiss the custom modal when the confirmation button is clicked
+modalCloseBtn.addEventListener("click", function () {
+  customModal.classList.add("hidden");
+  awayAlertActive = false; // Reset the away flag when modal is closed
+});
 
   // Switch from signup view to login view and clear input values
   showLoginLink.addEventListener("click", function (event) {
@@ -236,6 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Clear authentication input boxes and return to login screen on logout
   logoutButton.addEventListener("click", function () {
+    resetTimer(); // this is so that the timer stops and resets on logout
     signupUsernameInput.value = "";
     signupPasswordInput.value = "";
     loginUsernameInput.value = "";
@@ -262,51 +270,89 @@ document.addEventListener("DOMContentLoaded", function () {
     timerDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
   }
 
-  // Start the countdown timer interval loop, decrementing seconds every second
-  function startTimer() {
-    if (isTimerRunning) return;
-    
-    isTimerRunning = true;
+  // Start the countdown timer interval loop using absolute target timestamps to prevent browser tab throttling lags
+function startTimer() {
+  if (isTimerRunning) return;
+  isTimerRunning = true;
 
-    timerInterval = setInterval(function () {
-      if (timeRemainingSeconds > 0) {
-        timeRemainingSeconds--;
-        updateTimerDisplay();
+  // Calculate the exact future millisecond timestamp when this timer phase ends
+  timerEndTime = Date.now() + (timeRemainingSeconds * 1000);
+
+  timerInterval = setInterval(function () {
+    const now = Date.now();
+    const timeLeftMs = timerEndTime - now;
+    timeRemainingSeconds = Math.max(0, Math.floor(timeLeftMs / 1000));
+
+    if (timeRemainingSeconds > 0) {
+      updateTimerDisplay();
+    } else {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+
+      // Automatically transition between work and break phases
+      if (isWorkPhase) {
+        isWorkPhase = false;
+        timeRemainingSeconds = breakDurationMinutes * 60;
+        timerPhaseText.textContent = "Stretch Break Phase";
+        showAlertModal("Time to Stretch!", "Take a quick break and perform your ergonomic stretches.");
       } else {
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        
-        if (isWorkPhase) {
-          isWorkPhase = false;
-          timeRemainingSeconds = breakDurationMinutes * 60;
-          timerPhaseText.textContent = "Stretch Break Phase";
-          showAlertModal("Time to Stretch!", "Take a quick break and perform your ergonomic stretches.");
-        } else {
-          isWorkPhase = true;
-          timeRemainingSeconds = workDurationMinutes * 60;
-          timerPhaseText.textContent = "Focus Phase";
-          showAlertModal("Break Complete", "Ready to start your next focus session?");
-        }
-        
-        updateTimerDisplay();
+        isWorkPhase = true;
+        timeRemainingSeconds = workDurationMinutes * 60;
+        timerPhaseText.textContent = "Focus Phase";
+        showAlertModal("Break Complete", "Ready to start your next focus session?");
       }
-    }, 1000);
-  }
+      updateTimerDisplay();
 
-  // Clear the active countdown interval loop to pause the timer
-  function pauseTimer() {
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-  }
+      // Automatically start the next phase continuously so the user doesn't have to click again
+      startTimer();
+    }
+  }, 1000);
+}
 
-  // Pause the timer, reset active phase to work mode, and restore initial duration values
-  function resetTimer() {
-    pauseTimer();
-    isWorkPhase = true;
-    timeRemainingSeconds = workDurationMinutes * 60;
-    timerPhaseText.textContent = "Focus Phase";
-    updateTimerDisplay();
+// Clear the active countdown interval loop to pause the timer
+function pauseTimer() {
+  clearInterval(timerInterval);
+  isTimerRunning = false;
+}
+
+function resetTimer() {
+  pauseTimer();
+  isWorkPhase = true;
+  timeRemainingSeconds = workDurationMinutes * 60;
+  timerEndTime = null;
+  timerPhaseText.textContent = "Focus Phase";
+  updateTimerDisplay();
+}
+
+// Background interval to monitor user inactivity every minute
+setInterval(function () {
+  // Only check idle time if a focus timer is running or manual offline work mode is active
+  if (isTimerRunning || document.getElementById("manualWorkToggle").checked) {
+    idleTimeSeconds += 60;
+
+    // If user has been inactive for 15 minutes and the alert isn't already active, trigger check-in
+    if (idleTimeSeconds >= idleThresholdMinutes * 60 && !awayAlertActive) {
+      awayAlertActive = true;
+      showAlertModal("Are you still there?", "We noticed you've been inactive for a while. Let us know if you're still working!");
+      pauseTimer();
+    }
   }
+}, 60000);
+
+// Reset the idle counter whenever mouse movement, typing, clicking, or scrolling is detected
+function resetIdleTimer() {
+  idleTimeSeconds = 0;
+}
+
+// Pause the timer, reset active phase to work mode, clear end timestamp, and restore initial duration values
+function resetTimer() {
+  pauseTimer();
+  isWorkPhase = true;
+  timeRemainingSeconds = workDurationMinutes * 60;
+  timerEndTime = null;
+  timerPhaseText.textContent = "Focus Phase";
+  updateTimerDisplay();
+}
 
   // Hook up timer control buttons
   startTimerBtn.addEventListener("click", startTimer);
@@ -324,6 +370,17 @@ document.addEventListener("DOMContentLoaded", function () {
       resetTimer();
     });
   });
+
+// Safety listener for window close or refresh to stop and reset timer
+  window.addEventListener("beforeunload", function () {
+    resetTimer();
+});
+
+// Listen for user interactions across the window to track active status
+window.addEventListener("mousemove", resetIdleTimer);
+window.addEventListener("keydown", resetIdleTimer);
+window.addEventListener("click", resetIdleTimer);
+window.addEventListener("scroll", resetIdleTimer);
 
   // Render starting time immediately on script load
   updateTimerDisplay();
