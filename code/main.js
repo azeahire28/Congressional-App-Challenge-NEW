@@ -1,51 +1,48 @@
+// Waiting for the full html doc to load before running any script logic
 document.addEventListener("DOMContentLoaded", function () {
-
-  // Grab references to all main container views for dynamic screen switching
+  
+  // Grabs references to all main container views for dynamic screen switching
   const signupView = document.getElementById("signupView");
   const loginView = document.getElementById("loginView");
   const symptomsView = document.getElementById("symptomsView");
   const dashboardView = document.getElementById("dashboardView");
 
-  // Initialize idle tracking variables for inactivity check-ins
-  let idleTimeSeconds = 0;
-  const idleThresholdMinutes = 15; // 15 minutes threshold before asking "Are you still there?"
-  let awayAlertActive = false;
-
-  // Grab navigation triggers and buttons across authentication flows
+  // gets navigation triggers and buttons across authentication flows
   const showLoginLink = document.getElementById("showLoginLink");
   const showSignupLink = document.getElementById("showSignupLink");
   const createAccountButton = document.getElementById("createAccountButton");
   const loginButton = document.getElementById("loginButton");
   const logoutButton = document.getElementById("logoutButton");
 
-  // Grab input fields for signup and login forms
+  // Grabs input fields for signup and login forms
   const signupUsernameInput = document.getElementById("signupUsernameInput");
   const signupPasswordInput = document.getElementById("signupPasswordInput");
   const loginUsernameInput = document.getElementById("loginUsernameInput");
   const loginPasswordInput = document.getElementById("loginPasswordInput");
 
-  // Grab symptom cards, continue button, and tracking collection set
+  // Grabs symptom cards, continue button, and tracking collection set
   const symptomCards = document.querySelectorAll(".symptom-card");
   const startWellnessButton = document.getElementById("startWellnessButton");
   const selectedSymptoms = new Set();
 
-  // Grab toggle elements on the dashboard settings panel
+  // Grabs toggle elements on the dashboard settings panel mapped to their respective stretch categories
   const preferenceMap = {
     "Eye Strain": document.getElementById("stretchEyeToggle"),
     "Neck Tension": document.getElementById("stretchNeckToggle"),
     "Back & Posture": document.getElementById("stretchBackToggle"),
     "Wrist & Hand Tension": document.getElementById("stretchWristToggle"),
-    "Hip tightness": document.getElementById("stretchHipToggle"),
+    "Hip Tightness": document.getElementById("stretchHipToggle"),
     "Tension Headaches": document.getElementById("stretchHeadacheToggle")
   };
 
-  // Grab custom modal elements for validation messages and alerts
+  // Grabs custom modal elements for validation messages and stretch popups
   const customModal = document.getElementById("customModal");
   const modalTitle = document.getElementById("modalTitle");
   const modalMessage = document.getElementById("modalMessage");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
+  const modalXBtn = document.getElementById("modalXBtn");
 
-  // Grab focus timer display elements, status text, and control buttons
+  // Grabs focus timer display elements, status text, and control buttons
   const timerDisplay = document.getElementById("timerDisplay");
   const timerPhaseText = document.getElementById("timerPhaseText");
   const startTimerBtn = document.getElementById("startTimerBtn");
@@ -53,32 +50,39 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetTimerBtn = document.getElementById("resetTimerBtn");
   const timerModeBtns = document.querySelectorAll(".timer-mode-btn");
 
-  // Grab individual stretch buttons on the dashboard settings panel
+  // Grabs individual stretch buttons on the dashboard settings panel
   const stretchActionBtns = document.querySelectorAll(".stretch-action-btn");
 
-  // Initialize numerical timer state variables
+  // Initializes numerical focus/break timer state variables
   let workDurationMinutes = 25;
   let breakDurationMinutes = 5;
   let timeRemainingSeconds = workDurationMinutes * 60;
   let timerInterval = null;
   let isTimerRunning = false;
   let isWorkPhase = true;
-  let timerEndTime = null; // stores the exact future millisecond timestamp
+  let timerEndTime = null;
 
-  // Helper function to populate and show the custom alert modal
+  // Populates and displays the generic custom alert modal with custom titles and messages
   function showAlertModal(title, message) {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
     customModal.classList.remove("hidden");
   }
 
-// Dismiss the custom modal when the confirmation button is clicked
-modalCloseBtn.addEventListener("click", function () {
-  customModal.classList.add("hidden");
-  awayAlertActive = false; // Reset the away flag when modal is closed
-});
+  // Dismisses the custom modal when the default confirmation button is clicked by hiding the backdrop
+  modalCloseBtn.addEventListener("click", function () {
+    customModal.classList.add("hidden");
+  });
 
-  // Switch from signup view to login view and clear input values
+  // Closes modal on X click, dismisses the popup, and stops any active intervals to resume normal flow
+  modalXBtn.addEventListener("click", function () {
+    customModal.classList.add("hidden");
+    if (typeof stretchInterval !== 'undefined' && stretchInterval) {
+      clearInterval(stretchInterval);
+    }
+  });
+
+  // Switches from signup view to login view and clears input values so fields are fresh
   showLoginLink.addEventListener("click", function (event) {
     event.preventDefault();
     signupUsernameInput.value = "";
@@ -87,7 +91,7 @@ modalCloseBtn.addEventListener("click", function () {
     loginView.classList.remove("hidden");
   });
 
-  // Switch from login view back to signup view and clear input values
+  // Switches from login view back to signup view and clears input values
   showSignupLink.addEventListener("click", function (event) {
     event.preventDefault();
     loginUsernameInput.value = "";
@@ -96,44 +100,54 @@ modalCloseBtn.addEventListener("click", function () {
     signupView.classList.remove("hidden");
   });
 
-  // Handle account creation logic with validation for blanks, short passwords, and duplicates
+  // Handles account creation logic with validation for blank fields, short passwords, and existing duplicates
   createAccountButton.addEventListener("click", function () {
     const username = signupUsernameInput.value.trim();
     const password = signupPasswordInput.value.trim();
 
+    // Checks if fields are empty
     if (username === "" || password === "") {
       showAlertModal("Missing Information", "Please enter both a username and a password.");
       return;
     }
 
+    // Checks if password meets minimum length requirement
     if (password.length < 6) {
       showAlertModal("Password Too Short", "Please choose a password that is at least 6 characters long.");
       return;
     }
 
+    // Checks if username already exists in local storage
     const userKey = "ergoUser_" + username;
     if (localStorage.getItem(userKey)) {
       showAlertModal("Username Exists", "This username already exists. Please choose another one or log in.");
       return;
     }
 
+    // Saves new user credentials and sets active user session
     localStorage.setItem(userKey, password);
     localStorage.setItem("currentActiveUser", username);
 
+    // Resets symptom selections for the new account
     selectedSymptoms.clear();
-    symptomCards.forEach(function (c) { c.classList.remove("selected"); });
+    symptomCards.forEach(function (c) {
+      c.classList.remove("selected");
+    });
+
     startWellnessButton.setAttribute("disabled", "true");
     startWellnessButton.classList.add("disabled-btn");
 
+    // Transitions from signup view to the symptom selection view
     signupView.classList.add("hidden");
     symptomsView.classList.remove("hidden");
   });
 
-  // Validate login credentials and transition directly to the dashboard view
+  // Validates login credentials against local storage and transitions directly to the dashboard view
   loginButton.addEventListener("click", function () {
     const username = loginUsernameInput.value.trim();
     const password = loginPasswordInput.value.trim();
 
+    // Checks for empty inputs
     if (username === "" || password === "") {
       showAlertModal("Login Error", "Please enter your username and password.");
       return;
@@ -142,24 +156,29 @@ modalCloseBtn.addEventListener("click", function () {
     const userKey = "ergoUser_" + username;
     const storedPassword = localStorage.getItem(userKey);
 
-    // Save user credentials if logging in for the first time
+    // Verifies stored password or creates fallback entry
     if (!storedPassword) {
       localStorage.setItem(userKey, password);
+    } else if (storedPassword !== password) {
+      showAlertModal("Login Error", "Incorrect password.");
+      return;
     }
 
     localStorage.setItem("currentActiveUser", username);
 
-    // Transition directly to dashboard screen
+    // Transitions to dashboard and initializes user preferences and inactivity tracker
     loginView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     loadUserStretchPreferences();
+    startInactivityTracker();
   });
 
-  // Loop through symptom cards to toggle selection state and enable or disable continue button
+  // Loops through symptom cards to toggle selection state and enable or disable the continue button
   symptomCards.forEach(function (card) {
     card.addEventListener("click", function () {
       const symptomKey = card.getAttribute("data-symptom");
-
+      
+      // Toggles visual and collection state based on click
       if (card.classList.contains("selected")) {
         card.classList.remove("selected");
         selectedSymptoms.delete(symptomKey);
@@ -168,6 +187,7 @@ modalCloseBtn.addEventListener("click", function () {
         selectedSymptoms.add(symptomKey);
       }
 
+      // Enables or disables continue button depending on whether any symptoms are selected
       if (selectedSymptoms.size > 0) {
         startWellnessButton.removeAttribute("disabled");
         startWellnessButton.classList.remove("disabled-btn");
@@ -178,29 +198,30 @@ modalCloseBtn.addEventListener("click", function () {
     });
   });
 
-  // Save selected symptoms uniquely under the active username and persist toggle states
+  // Saves selected symptoms and initializes toggle states uniquely under the active username
   startWellnessButton.addEventListener("click", function () {
     if (selectedSymptoms.size > 0) {
       const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
       const symptomArray = Array.from(selectedSymptoms);
-      localStorage.setItem("userSymptoms_" + activeUser, JSON.stringify(symptomArray));
       
-      // Save initial toggle states so they persist across logouts
-      Object.keys(preferenceMap).forEach(key => {
-        const toggle = preferenceMap[key];
-        if (toggle) {
-          toggle.checked = symptomArray.includes(key);
-        }
-      });
-      localStorage.setItem("userToggleStates_" + activeUser, JSON.stringify(getToggleStates(activeUser)));
+      // Stores user symptoms and default toggle preferences in local storage
+      localStorage.setItem("userSymptoms_" + activeUser, JSON.stringify(symptomArray));
 
+      const initialStates = {};
+      Object.keys(preferenceMap).forEach(key => {
+        initialStates[key] = symptomArray.includes(key);
+      });
+      localStorage.setItem("userToggleStates_" + activeUser, JSON.stringify(initialStates));
+
+      // Transitions from symptoms view into the main dashboard view
       symptomsView.classList.add("hidden");
       dashboardView.classList.remove("hidden");
       loadUserStretchPreferences();
+      startInactivityTracker();
     }
   });
 
-  // Helper to capture toggle checkbox states
+  // Captures current toggle checkbox states from dashboard switches
   function getToggleStates(username) {
     const states = {};
     Object.keys(preferenceMap).forEach(key => {
@@ -212,7 +233,7 @@ modalCloseBtn.addEventListener("click", function () {
     return states;
   }
 
-  // Retrieve active user's saved toggle preferences and synchronize dashboard switches
+  // Retrieves active user's saved toggle preferences and synchronizes dashboard toggle switches
   function loadUserStretchPreferences() {
     const activeUser = localStorage.getItem("currentActiveUser") || "defaultUser";
     const savedStates = JSON.parse(localStorage.getItem("userToggleStates_" + activeUser));
@@ -230,7 +251,7 @@ modalCloseBtn.addEventListener("click", function () {
     });
   }
 
-  // Save toggle changes whenever a user toggles them on the dashboard
+  // Saves toggle changes automatically whenever a user interacts with switches on the dashboard
   Object.keys(preferenceMap).forEach(key => {
     const toggle = preferenceMap[key];
     if (toggle) {
@@ -241,27 +262,253 @@ modalCloseBtn.addEventListener("click", function () {
     }
   });
 
-  // Clear authentication input boxes and return to login screen on logout
+  // Clears authentication input boxes, stops timer/tracker, and returns to login screen on user logout
   logoutButton.addEventListener("click", function () {
-    resetTimer(); // this is so that the timer stops and resets on logout
+    resetTimer();
+    stopInactivityTracker();
     signupUsernameInput.value = "";
     signupPasswordInput.value = "";
     loginUsernameInput.value = "";
     loginPasswordInput.value = "";
-
     dashboardView.classList.add("hidden");
     loginView.classList.remove("hidden");
   });
 
-  // Attach click listeners to individual stretch buttons to trigger stretching session modal popup
+  // Contains all stretch routines, titles, category badges, video paths, and descriptions
+  const stretchRoutineData = [
+    {
+      category: "Eye Strain",
+      title: "Eye Strain Stretch",
+      videoSrc: "./assets/Eye Strain Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Rest your eyes, blink rapidly, or look away into the distance to relieve digital fatigue."
+    },
+    {
+      category: "Neck Tension",
+      title: "Neck Tension Stretch",
+      videoSrc: "./assets/Neck Tension Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Gently tilt your ear toward your shoulder to release tightness in the upper traps and neck."
+    },
+    {
+      category: "Back & Posture",
+      title: "Seated Overhead Reach",
+      videoSrc: "./assets/Seated Overhead Reach Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Interlock your fingers and press your palms upward toward the ceiling, lengthening your spine."
+    },
+    {
+      category: "Back & Posture",
+      title: "Shoulder Roll",
+      videoSrc: "./assets/Shoulder Roll Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Roll your shoulders slowly upward, backward, and down to release built-up scapular tension."
+    },
+    {
+      category: "Wrist & Hand Tension",
+      title: "Wrist Flexor Stretch",
+      videoSrc: "./assets/Wrist Flexor Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Extend one arm forward with your palm facing out, gently pulling fingers back to stretch the forearm."
+    },
+    {
+      category: "Wrist & Hand Tension",
+      title: "Deltoid Stretch",
+      videoSrc: "./assets/Deltoid Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Pull your arm across your chest to stretch the shoulder and upper back muscles."
+    },
+    {
+      category: "Hip Tightness",
+      title: "Seated Figure-4 Stretch",
+      videoSrc: "./assets/Seated Figure-4 Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Cross one ankle over your opposite knee, sitting tall and applying light pressure to open the hip."
+    },
+    {
+      category: "Tension Headaches",
+      title: "Tension Headache Relief",
+      videoSrc: "./assets/Tension Headache Stretch GIF.mp4",
+      durationSeconds: 30,
+      description: "Rest fingertips gently on your temples and move them in small, slow circles to release head pressure."
+    }
+  ];
+
+  // Tracks active position in routine and countdown timers
+  let currentStretchIndex = 0;
+  let stretchTimeRemaining = 30;
+  let isRestingPhase = false;
+  let stretchInterval = null;
+
+  // Hooks up click listeners to all dashboard stretch action buttons to launch guided routines
   stretchActionBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      const stretchType = btn.getAttribute("data-stretch");
-      showAlertModal("Stretching Session", `Starting your guided stretching session for ${stretchType}.`);
+      const categoryName = btn.getAttribute("data-stretch");
+      const filteredStretches = stretchRoutineData.filter(item => item.category === categoryName);
+      if (filteredStretches.length > 0) {
+        runSingleCategorySession(filteredStretches);
+      }
     });
   });
 
-  // Calculate remaining minutes and seconds into a formatted digital mm:ss countdown clock string
+  // Runs a targeted single-category stretching session inside the modal
+  function runSingleCategorySession(categoryStretches) {
+    let catIndex = 0;
+    let timeRemaining = categoryStretches[catIndex].durationSeconds;
+
+    if (modalCloseBtn) modalCloseBtn.style.display = "none";
+
+    // Renders the current stretch card inside the modal dialog
+    function renderCurrentCategoryStretch() {
+      const stretch = categoryStretches[catIndex];
+      modalTitle.textContent = stretch.title;
+      modalMessage.innerHTML = `
+        <div id="stretchContainer" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #231665; background-color: #dcfce7; padding: 4px 12px; border-radius: 9999px; margin-bottom: 8px;">${stretch.category}</span>
+          <div id="stretchTimer" style="font-size: 30px; font-weight: 800; color: #111827; margin: 8px 0;">00:${timeRemaining < 10 ? "0" + timeRemaining : timeRemaining}</div>
+          <div style="width: 100%; height: 180px; background-color: #f9fafb; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin: 8px 0; border: 1px solid #f3f4f6;">
+            <video src="${stretch.videoSrc}" autoplay loop muted playsinline style="max-height: 100%; max-width: 100%; object-fit: contain; pointer-events: none;"></video>
+          </div>
+          <p style="color: #4b5563; font-size: 14px; background-color: #f9fafb; padding: 12px; border-radius: 12px; border: 1px solid #e5e7eb; margin-top: 8px;">${stretch.description}</p>
+          <button id="categoryDoneBtn" class="primary-btn" style="margin-top: 12px; width: 100%;">Done!</button>
+        </div>
+      `;
+
+      customModal.classList.remove("hidden");
+
+      setTimeout(() => {
+        const doneBtn = document.getElementById("categoryDoneBtn");
+        if (doneBtn) {
+          doneBtn.onclick = () => {
+            customModal.classList.add("hidden");
+            if (modalCloseBtn) modalCloseBtn.style.display = "block";
+            if (typeof stretchInterval !== 'undefined' && stretchInterval) clearInterval(stretchInterval);
+          };
+        }
+      }, 50);
+
+      if (typeof stretchInterval !== 'undefined' && stretchInterval) clearInterval(stretchInterval);
+
+      // Starts countdown timer interval for the current stretch exercise
+      stretchInterval = setInterval(() => {
+        timeRemaining--;
+        const timerEl = document.getElementById("stretchTimer");
+        if (timerEl) {
+          const formatted = timeRemaining < 10 ? "0" + timeRemaining : timeRemaining;
+          timerEl.textContent = `00:${formatted}`;
+        }
+
+        if (timeRemaining <= 0) {
+          clearInterval(stretchInterval);
+          if (catIndex < categoryStretches.length - 1) {
+            catIndex++;
+            timeRemaining = categoryStretches[catIndex].durationSeconds;
+            renderCurrentCategoryStretch();
+          } else {
+            customModal.classList.add("hidden");
+            if (modalCloseBtn) modalCloseBtn.style.display = "block";
+          }
+        }
+      }, 1000);
+    }
+
+    renderCurrentCategoryStretch();
+  }
+
+  // Renders and runs active full-routine stretch cards inside the modal container
+  function startStretchSession() {
+    const currentStretch = stretchRoutineData[currentStretchIndex];
+    stretchTimeRemaining = currentStretch.durationSeconds;
+    modalTitle.textContent = currentStretch.title;
+    modalMessage.innerHTML = `
+      <div id="stretchContainer" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #231665; background-color: #dcfce7; padding: 4px 12px; border-radius: 9999px; margin-bottom: 8px;">${currentStretch.category}</span>
+        <div id="stretchTimer" style="font-size: 30px; font-weight: 800; color: #111827; margin: 8px 0;">00:${stretchTimeRemaining}</div>
+        <div style="width: 100%; height: 180px; background-color: #f9fafb; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin: 8px 0; border: 1px solid #f3f4f6;">
+          <video src="${currentStretch.videoSrc}" autoplay loop muted playsinline style="max-height: 100%; max-width: 100%; object-fit: contain; pointer-events: none;"></video>
+        </div>
+        <p style="color: #4b5563; font-size: 14px; background-color: #f9fafb; padding: 12px; border-radius: 12px; border: 1px solid #e5e7eb; margin-top: 8px;">${currentStretch.description}</p>
+      </div>
+    `;
+
+    customModal.classList.remove("hidden");
+    if (stretchInterval) clearInterval(stretchInterval);
+
+    stretchInterval = setInterval(() => {
+      stretchTimeRemaining--;
+      const timerElement = document.getElementById("stretchTimer");
+      if (timerElement) {
+        const formattedSecs = stretchTimeRemaining < 10 ? "0" + stretchTimeRemaining : stretchTimeRemaining;
+        timerElement.textContent = `00:${formattedSecs}`;
+      }
+
+      if (stretchTimeRemaining <= 0) {
+        clearInterval(stretchInterval);
+        if (!isRestingPhase) {
+          if (currentStretchIndex < stretchRoutineData.length - 1) {
+            isRestingPhase = true;
+            stretchTimeRemaining = 5;
+            runTransitionScreen();
+          } else {
+            runFinishedScreen();
+          }
+        }
+      }
+    }, 1000);
+  }
+
+  // Handles the 5-second rest and transition screen between consecutive stretches
+  function runTransitionScreen() {
+    const nextStretch = stretchRoutineData[currentStretchIndex + 1];
+    modalTitle.textContent = "Get Ready";
+    modalMessage.innerHTML = `
+      <div class="py-8 flex flex-col items-center text-center">
+        <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full mb-3">Transition</span>
+        <h3 class="text-xl font-bold text-gray-800 mb-1">Next Up:</h3>
+        <p class="text-lg font-medium text-gray-600 mb-4">${nextStretch ? nextStretch.title : "Almost Done"}</p>
+        <div id="stretchTimer" class="text-5xl font-extrabold text-blue-600 my-2">${stretchTimeRemaining}s</div>
+        <p class="text-gray-400 text-xs mt-3">Reset your posture and take a breath.</p>
+      </div>
+    `;
+
+    stretchInterval = setInterval(() => {
+      stretchTimeRemaining--;
+      const timerElement = document.getElementById("stretchTimer");
+      if (timerElement) {
+        timerElement.textContent = `${stretchTimeRemaining}s`;
+      }
+
+      if (stretchTimeRemaining <= 0) {
+        clearInterval(stretchInterval);
+        isRestingPhase = false;
+        currentStretchIndex++;
+        startStretchSession();
+      }
+    }, 1000);
+  }
+
+  // Renders the final completion success screen when all stretches are finished
+  function runFinishedScreen() {
+    modalTitle.textContent = "Great Job!";
+    modalMessage.innerHTML = `
+      <div class="py-6 flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 text-2xl font-bold">✓</div>
+        <p class="text-gray-600 text-sm mb-6">You completed your full stretch session and refreshed your posture.</p>
+        <button id="doneSessionBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all">Done!</button>
+      </div>
+    `;
+
+    setTimeout(() => {
+      const doneBtn = document.getElementById("doneSessionBtn");
+      if (doneBtn) {
+        doneBtn.addEventListener("click", () => {
+          customModal.classList.add("hidden");
+        });
+      }
+    }, 100);
+  }
+
+  // Calculates remaining minutes and seconds into a formatted digital mm:ss countdown clock string
   function updateTimerDisplay() {
     const minutes = Math.floor(timeRemainingSeconds / 60);
     const seconds = timeRemainingSeconds % 60;
@@ -270,118 +517,111 @@ modalCloseBtn.addEventListener("click", function () {
     timerDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
   }
 
-  // Start the countdown timer interval loop using absolute target timestamps to prevent browser tab throttling lags
-function startTimer() {
-  if (isTimerRunning) return;
-  isTimerRunning = true;
+  // Starts the countdown timer interval loop using absolute target timestamps to prevent browser throttling
+  function startTimer() {
+    if (isTimerRunning) return;
+    isTimerRunning = true;
+    timerEndTime = Date.now() + (timeRemainingSeconds * 1000);
 
-  // Calculate the exact future millisecond timestamp when this timer phase ends
-  timerEndTime = Date.now() + (timeRemainingSeconds * 1000);
+    timerInterval = setInterval(function () {
+      const now = Date.now();
+      const timeLeftMs = timerEndTime - now;
+      timeRemainingSeconds = Math.max(0, Math.floor(timeLeftMs / 1000));
 
-  timerInterval = setInterval(function () {
-    const now = Date.now();
-    const timeLeftMs = timerEndTime - now;
-    timeRemainingSeconds = Math.max(0, Math.floor(timeLeftMs / 1000));
-
-    if (timeRemainingSeconds > 0) {
-      updateTimerDisplay();
-    } else {
-      clearInterval(timerInterval);
-      isTimerRunning = false;
-
-      // Automatically transition between work and break phases
-      if (isWorkPhase) {
-        isWorkPhase = false;
-        timeRemainingSeconds = breakDurationMinutes * 60;
-        timerPhaseText.textContent = "Stretch Break Phase";
-        showAlertModal("Time to Stretch!", "Take a quick break and perform your ergonomic stretches.");
+      if (timeRemainingSeconds > 0) {
+        updateTimerDisplay();
       } else {
-        isWorkPhase = true;
-        timeRemainingSeconds = workDurationMinutes * 60;
-        timerPhaseText.textContent = "Focus Phase";
-        showAlertModal("Break Complete", "Ready to start your next focus session?");
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        
+        // Handles transitions between work phase and stretch break phase
+        if (isWorkPhase) {
+          isWorkPhase = false;
+          timeRemainingSeconds = breakDurationMinutes * 60;
+          timerPhaseText.textContent = "Stretch Break Phase";
+          showAlertModal("Time to Stretch!", "Take a quick break and perform your ergonomic stretches.");
+        } else {
+          isWorkPhase = true;
+          timeRemainingSeconds = workDurationMinutes * 60;
+          timerPhaseText.textContent = "Focus Phase";
+          showAlertModal("Break Complete", "Ready to start your next focus session?");
+        }
+        updateTimerDisplay();
+        startTimer();
       }
-      updateTimerDisplay();
-
-      // Automatically start the next phase continuously so the user doesn't have to click again
-      startTimer();
-    }
-  }, 1000);
-}
-
-// Clear the active countdown interval loop to pause the timer
-function pauseTimer() {
-  clearInterval(timerInterval);
-  isTimerRunning = false;
-}
-
-function resetTimer() {
-  pauseTimer();
-  isWorkPhase = true;
-  timeRemainingSeconds = workDurationMinutes * 60;
-  timerEndTime = null;
-  timerPhaseText.textContent = "Focus Phase";
-  updateTimerDisplay();
-}
-
-// Background interval to monitor user inactivity every minute
-setInterval(function () {
-  // Only check idle time if a focus timer is running or manual offline work mode is active
-  if (isTimerRunning || document.getElementById("manualWorkToggle").checked) {
-    idleTimeSeconds += 60;
-
-    // If user has been inactive for 15 minutes and the alert isn't already active, trigger check-in
-    if (idleTimeSeconds >= idleThresholdMinutes * 60 && !awayAlertActive) {
-      awayAlertActive = true;
-      showAlertModal("Are you still there?", "We noticed you've been inactive for a while. Let us know if you're still working!");
-      pauseTimer();
-    }
+    }, 1000);
   }
-}, 60000);
 
-// Reset the idle counter whenever mouse movement, typing, clicking, or scrolling is detected
-function resetIdleTimer() {
-  idleTimeSeconds = 0;
-}
+  // Clears the active countdown interval loop to pause the timer
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+  }
 
-// Pause the timer, reset active phase to work mode, clear end timestamp, and restore initial duration values
-function resetTimer() {
-  pauseTimer();
-  isWorkPhase = true;
-  timeRemainingSeconds = workDurationMinutes * 60;
-  timerEndTime = null;
-  timerPhaseText.textContent = "Focus Phase";
-  updateTimerDisplay();
-}
+  // Pauses the timer, resets active phase to work mode, clears end timestamp, and restores initial duration values
+  function resetTimer() {
+    pauseTimer();
+    isWorkPhase = true;
+    timeRemainingSeconds = workDurationMinutes * 60;
+    timerEndTime = null;
+    timerPhaseText.textContent = "Focus Phase";
+    updateTimerDisplay();
+  }
 
-  // Hook up timer control buttons
+  // Hooks up event listeners for timer control buttons
   startTimerBtn.addEventListener("click", startTimer);
   pauseTimerBtn.addEventListener("click", pauseTimer);
   resetTimerBtn.addEventListener("click", resetTimer);
 
-  // Update work and break durations and reset clock when preset mode buttons are clicked
+  // Updates work and break durations and resets clock when preset mode buttons are clicked
   timerModeBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       timerModeBtns.forEach(function (b) { b.classList.remove("active"); });
       btn.classList.add("active");
-
       workDurationMinutes = parseInt(btn.getAttribute("data-work"), 10);
       breakDurationMinutes = parseInt(btn.getAttribute("data-break"), 10);
       resetTimer();
     });
   });
 
-// Safety listener for window close or refresh to stop and reset timer
+  // Safety listener for window close or refresh to stop and reset the active timer
   window.addEventListener("beforeunload", function () {
     resetTimer();
-});
+  });
 
-// Listen for user interactions across the window to track active status
-window.addEventListener("mousemove", resetIdleTimer);
-window.addEventListener("keydown", resetIdleTimer);
-window.addEventListener("click", resetIdleTimer);
-window.addEventListener("scroll", resetIdleTimer);
+  // DASHBOARD INACTIVITY TRACKER LOGIC
+  let inactivityTimer = null;
+  let inactivityTimeout = 15 * 60 * 1000; // 15 minutes threshold
 
-  // Render starting time immediately on script load
+  // Starts listening for mouse movement or keystrokes to detect user activity
+  function startInactivityTracker() {
+    stopInactivityTracker();
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
+    resetInactivityTimer();
+  }
+
+  // Cleans up inactivity event listeners and timers
+  function stopInactivityTracker() {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    window.removeEventListener("mousemove", resetInactivityTimer);
+    window.removeEventListener("keydown", resetInactivityTimer);
+  }
+
+  // Resets the inactivity countdown whenever user activity is detected
+  function resetInactivityTimer() {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      const modal = document.getElementById("customModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        document.getElementById("modalTitle").innerText = "Are you still there?";
+        document.getElementById("modalMessage").innerText = "We noticed you've been inactive for a while. Let us know if you're still working!";
+        document.getElementById("modalCloseBtn").innerText = "Yes!";
+      }
+    }, inactivityTimeout);
+  }
+
+  // Renders starting time immediately on initial script load
   updateTimerDisplay();
 });

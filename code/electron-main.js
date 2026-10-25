@@ -16,6 +16,9 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  // Automatically opens the developer tools console on startup
+  mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
