@@ -1,0 +1,615 @@
+/* Color palette and variable tokens */
+:root {
+  --bg-dark: #040403;
+  --bg-card: #FFFFFF;
+  --bg-container: #E9ECEF;
+  --panel-left-bg: #C3E8BD;
+  --panel-right-bg: #8EB897;
+  --green-primary: #5B7553;
+  --green-accent: #8EB897;
+}
+
+
+/* Base body setup */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: #333333;
+}
+
+
+/* Utility class to instantly hide elements */
+.hidden {
+  display: none !important;
+}
+
+
+/* Split-screen container layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+
+/* Full-screen view container wrapper */
+.full-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--panel-left-bg);
+}
+
+
+/* Centered login card wrapper */
+.centered-login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+
+/* Symptoms selection screen wrapper */
+.symptoms-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 650px;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+.symptoms-header {
+  margin-bottom: 25px;
+}
+
+
+.symptoms-header h2 {
+  font-size: 1.8rem;
+  color: var(--green-primary);
+  margin: 0 0 8px 0;
+}
+
+
+.symptoms-header p {
+  color: #4a5e44;
+  font-size: 1rem;
+  margin: 0;
+}
+
+
+/* Grid layout for symptom option cards */
+.symptoms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+
+/* Individual symptom card styling */
+.symptom-card {
+  background-color: var(--bg-container);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+
+.symptom-card:hover {
+  background-color: #dce1e5;
+}
+
+
+/* Active selected state for symptom cards */
+.symptom-card.selected {
+  background-color: #d2e4cb;
+  border: 2px solid var(--green-primary);
+}
+
+
+.symptom-card span {
+  font-weight: 600;
+  color: #333333;
+}
+
+
+/* Check indicator circle inside symptom cards */
+.checkbox-circle {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  transition: background-color 0.2s ease;
+}
+
+
+.symptom-card.selected .checkbox-circle {
+  background-color: var(--green-primary);
+  border-color: var(--green-primary);
+}
+
+
+.symptoms-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+
+.symptoms-instruction {
+  font-size: 0.9rem;
+  color: var(--green-primary);
+  margin: 0;
+}
+
+
+/* Disabled state style for continue buttons */
+.disabled-btn {
+  background-color: #9cb097 !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+
+/* Split panel layout styling */
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+
+.left-panel {
+  background-color: var(--panel-left-bg);
+  align-items: flex-start;
+  padding-left: 60px;
+  padding-right: 60px;
+}
+
+
+.left-content-wrapper {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.right-panel {
+  background-color: var(--panel-right-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden; 
+}
+
+
+.hero-illustration-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: visible;
+}
+
+
+/* Logo icon and brand title container */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+
+.centered-logo {
+  justify-content: center;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+
+.brand-title {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+
+.brand-title-large {
+  font-size: 3rem;
+  margin: 0;
+}
+
+
+.ergo-text {
+  color: var(--green-primary);
+  font-weight: 700;
+}
+
+
+.grow-text {
+  color: var(--green-primary);
+  font-weight: 700;
+}
+
+
+.brand-subtitle {
+  color: var(--green-primary);
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+
+/* Card box containers */
+.card-container {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+
+.card-container h2 {
+  margin-top: 0;
+  color: #222222;
+}
+
+
+/* Form input fields */
+.input-group {
+  margin-bottom: 15px;
+}
+
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+
+/* Primary buttons */
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--green-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s ease;
+}
+
+
+.primary-btn:hover {
+  background-color: #485c42;
+}
+
+
+/* Outline buttons */
+.outline-btn {
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--green-primary);
+  border: 1px solid var(--green-primary);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+
+.outline-btn:hover {
+  background-color: rgba(91, 117, 83, 0.1);
+}
+
+
+.auth-switch {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+
+.auth-switch a {
+  color: var(--bg-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+
+.logo-icon {
+  width: 72px;
+  height: auto;
+  vertical-align: middle;
+}
+
+
+.logo-icon-large {
+  width: 88px;
+  height: auto;
+  vertical-align: middle;
+}
+
+
+.hero-tree-img {
+  height: 85vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  pointer-events: none; /* Ensures mouse clicks pass right through the tree image */
+}
+
+
+.dashboard-wrapper {
+  width: 90%;
+  max-width: 1000px;
+  background-color: var(--bg-card);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+  box-sizing: border-box;
+}
+
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+
+.timer-section, .settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+
+.timer-mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+
+.timer-mode-btn {
+  padding: 8px;
+  background-color: var(--bg-container);
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+
+.timer-mode-btn.active {
+  background-color: var(--green-primary);
+  color: white;
+  border-color: var(--green-primary);
+}
+
+
+.timer-display-box {
+  background-color: var(--bg-container);
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+
+.timer-display-box h1 {
+  font-size: 3rem;
+  margin: 0 0 5px 0;
+  color: var(--green-primary);
+}
+
+
+.timer-phase-text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+}
+
+
+.timer-btn {
+  flex: 1;
+}
+
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--green-primary);
+  margin: 10px 0 5px 0;
+}
+
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.toggle-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+
+.toggle-subtitle {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+
+.stretch-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+}
+
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+}
+
+
+input:checked + .slider {
+  background-color: var(--green-primary);
+}
+
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+
+.slider.round {
+  border-radius: 24px;
+}
+
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+
+.modal-card {
+  width: 90%;
+  max-width: 360px;
+  background-color: var(--bg-card);
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+
+.modal-card h3 {
+  margin-top: 0;
+  color: var(--green-primary);
+}
+
+
+.modal-card p {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+
+

@@ -1,0 +1,17 @@
+{
+  "name": "ergogrow",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Your very own desk buddy",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.8",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "electron": "^29.1.5"
+  }
+}
